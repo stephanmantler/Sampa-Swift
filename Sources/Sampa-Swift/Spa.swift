@@ -16,7 +16,7 @@ struct SPAOptions : OptionSet {
     static let incidence = SPAOptions(rawValue: 2)
     static let riseTransitSet = SPAOptions(rawValue: 4)
     
-    static let all = [.zenithAzimuth, incidence, riseTransitSet]
+    static let all: SPAOptions = [.zenithAzimuth, incidence, riseTransitSet]
 }
 
 struct SPAParameters {
@@ -54,24 +54,24 @@ struct SPAParameters {
 
 struct SPAResult {
     /// topocentric zenith angle [degrees]
-    var zenith: Double = .nan;
+    var zenith: Double = .nan
     /// topocentric azimuth angle (westward from south) [for astronomers]
-    var azimuth_astro: Double = .nan;
+    var azimuth_astro: Double = .nan
     /// topocentric azimuth angle (eastward from north) [for navigators and solar radiation]
-    var azimuth: Double = .nan;
+    var azimuth: Double = .nan
     /// surface incidence angle [degrees]
-    var incidence: Double = .nan;
+    var incidence: Double = .nan
 
     /// local sun transit time (or solar noon) [fractional hour]
-    var suntransit: Double = .nan;
+    var suntransit: Double = .nan
     //local sunrise time (+/- 30 seconds) [fractional hour]
-    var sunrise: Double = .nan;
+    var sunrise: Double = .nan
     //local sunset time (+/- 30 seconds) [fractional hour]
-    var sunset: Double = .nan;
+    var sunset: Double = .nan
 }
 
 class SPA {
-    let params: SPAParameters
+    var params: SPAParameters
     
     // MARK: General parameters
     let SUN_RADIUS = 0.26667
@@ -102,7 +102,7 @@ class SPA {
         [
             [9,3.9,5507.55], [6,1.73,5223.69]
         ]
-    ];
+    ]
 
     let R_TERMS /* [R_COUNT][R_MAX_SUBCOUNT][TERM_COUNT] */ =
     [
@@ -266,7 +266,7 @@ class SPA {
         
     func third_order_polynomial(_ a: Double, _ b: Double, _ c: Double, _ d: Double, _ x: Double) -> Double
     {
-        return ((a*x + b)*x + c)*x + d;
+        return ((a*x + b)*x + c)*x + d
     }
     
     func xy_term_summation(_ i: Int, _ x: [Double]) -> Double
@@ -295,17 +295,17 @@ class SPA {
         theta = geocentric_longitude(l)
         beta  = geocentric_latitude(b)
 
-        x[0] = mean_elongation_moon_sun(jce);
-        x[1] = mean_anomaly_sun(jce);
-        x[2] = mean_anomaly_moon(jce);
-        x[3] = argument_latitude_moon(jce);
-        x[4] = ascending_longitude_moon(jce);
+        x[0] = mean_elongation_moon_sun(jce)
+        x[1] = mean_anomaly_sun(jce)
+        x[2] = mean_anomaly_moon(jce)
+        x[3] = argument_latitude_moon(jce)
+        x[4] = ascending_longitude_moon(jce)
         nutation_longitude_and_obliquity(jce, x)
 
         epsilon0 = ecliptic_mean_obliquity(jme)
         epsilon  = ecliptic_true_obliquity(del_epsilon, epsilon0)
 
-        del_tau   = aberration_correction(r);
+        del_tau   = aberration_correction(r)
         lamda     = apparent_sun_longitude(theta, del_psi, del_tau)
         nu0       = greenwich_mean_sidereal_time (jd, jc)
         nu        = greenwich_sidereal_time (nu0, del_psi, epsilon)
@@ -329,36 +329,43 @@ class SPA {
 
         calculate_right_ascension_parallax_and_topocentric_dec()
 
-        alpha_prime = topocentric_right_ascension(alpha, del_alpha);
-        h_prime     = topocentric_local_hour_angle(h, del_alpha);
+        alpha_prime = topocentric_right_ascension(alpha, del_alpha)
+        h_prime     = topocentric_local_hour_angle(h, del_alpha)
 
-        e0      = topocentric_elevation_angle(params.location.coordinate.latitude, delta_prime, h_prime);
+        e0 = topocentric_elevation_angle(
+            params.location.coordinate.latitude,
+            delta_prime,
+            h_prime)
 
-        del_e   = atmospheric_refraction_correction(params.pressure, params.temperature,
-                                                    params.atmosphericRefraction, e0);
-        e       = topocentric_elevation_angle_corrected(e0, del_e);
+        del_e = atmospheric_refraction_correction(
+            params.pressure,
+            params.temperature,
+            params.atmosphericRefraction,
+            e0)
+        
+        e = topocentric_elevation_angle_corrected(e0, del_e)
         
         var result = SPAResult()
 
-        result.zenith        = topocentric_zenith_angle(e);
-        result.azimuth_astro = topocentric_azimuth_angle_astro(h_prime, params.location.coordinate.latitude, delta_prime);
-        result.azimuth       = topocentric_azimuth_angle(result.azimuth_astro);
+        result.zenith        = topocentric_zenith_angle(e)
+        result.azimuth_astro = topocentric_azimuth_angle_astro(h_prime, params.location.coordinate.latitude, delta_prime)
+        result.azimuth       = topocentric_azimuth_angle(result.azimuth_astro)
+        
+        if options.contains(.incidence) {
+            result.incidence = surface_incidence_angle(
+                result.zenith,
+                result.azimuth_astro,
+                params.azimuthRotation,
+                params.slope)
+        }
+        
+        if options.contains(.riseTransitSet) {
+            let rts = calculate_eot_and_sun_rise_transit_set()
+            result.sunrise = rts.0
+            result.suntransit = rts.1
+            result.sunset = rts.2
+        }
         
         return result
-/*
-
-
-            if ((params.function == SPA_ZA_INC) || (params.function == SPA_ALL))
-                params.incidence  = surface_incidence_angle(params.zenith, params.azimuth_astro,
-                                                          params.azm_rotation, params.slope);
-
-            if ((params.function == SPA_ZA_RTS) || (params.function == SPA_ALL))
-                calculate_eot_and_sun_rise_transit_set(spa);
-        }
-
-        return result;
-    }
- */
-        return nil /* for now */
     }
 }

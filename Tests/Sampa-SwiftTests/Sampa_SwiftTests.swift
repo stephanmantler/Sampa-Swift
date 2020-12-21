@@ -26,6 +26,8 @@ final class Sampa_SwiftTests: XCTestCase {
         var spa = SPA(params: params)
         var result = spa.calculate()
         
+        XCTAssertNotNil(result)
+        
         XCTAssertEqual(spa.jd, 2456293.520833, accuracy: testAccuracy, "Inaccurate Julian Date Calculation")
         
         date = DateComponents(timeZone: .none, year: 2023, month: 7, day: 7, hour: 16, minute: 30, second: 6, nanosecond: 0)
@@ -37,7 +39,47 @@ final class Sampa_SwiftTests: XCTestCase {
         XCTAssertEqual(spa.jd, 2460133.18757, accuracy: testAccuracy, "Inaccurate Julian Date Calculation")
     }
     
-    func testComplete() {
+    /**
+     * Check correct calculation of sunrise, transit and sunset values.
+     *
+     * This function uses the parameters and result values from Appendix A.5 at
+     * [NREL-TP-560-34302](https://www.nrel.gov/docs/fy08osti/34302.pdf) (_Solar Position Algorithm for Solar Radiation Applications_).
+     */
+    func testSunriseSunTransitSunset() {
+        let date = DateComponents(timeZone: .none, year: 2003, month: 10, day: 17, hour: 12, minute: 30, second: 30, nanosecond: 0)
+        var params = SPAParameters(
+            date: date,
+            timezone: TimeZone(secondsFromGMT: -7 * 3600)!,
+            location: CLLocation(
+                coordinate: CLLocationCoordinate2D(latitude: 39.742476, longitude: -105.1786),
+                altitude: 1830.14,
+                horizontalAccuracy: 0,
+                verticalAccuracy: 0,
+                timestamp: Date()))
+        params.delta_t = 67
+        params.delta_ut1 = 0
+        params.pressure = 820
+        params.temperature = 11
+        params.atmosphericRefraction = 0.5667
+        params.slope = 30
+        params.azimuthRotation = -10
+        
+        let spa = SPA(params: params)
+        let result = spa.calculate(SPAOptions.all)
+        XCTAssertNotNil(result)
+
+        XCTAssertEqual(result!.sunrise, 6.212067, accuracy: 1e-6)
+        XCTAssertEqual(result!.suntransit, 11.768045, accuracy: 1e-6)
+        XCTAssertEqual(result!.sunset, 17.338667, accuracy: 1e-6)
+    }
+    
+    /**
+     * Check correct calculation of baseline SPA parameters.
+     *
+     * This function uses the parameters and result values of the NREL C implementation test/sample code.
+     */
+
+    func testBaselineSPA() {
         let date = DateComponents(timeZone: .none, year: 2009, month: 7, day: 22, hour: 1, minute: 33, second: 0, nanosecond: 0)
         var params = SPAParameters(
             date: date,
@@ -55,8 +97,8 @@ final class Sampa_SwiftTests: XCTestCase {
         params.atmosphericRefraction = 0.5667
         
         let spa = SPA(params: params)
-        let result = spa.calculate()
-        
+        let result = spa.calculate(SPAOptions.all)
+        XCTAssertNotNil(result)
         XCTAssertEqual(result!.azimuth, 104.387917, accuracy: 1e-6)
         XCTAssertEqual(result!.zenith, 14.512686, accuracy: 1e-6)
         XCTAssertEqual(spa.l, 299.4024, accuracy: 1e-4)
