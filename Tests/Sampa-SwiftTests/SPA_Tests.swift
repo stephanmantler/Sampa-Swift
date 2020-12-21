@@ -1,7 +1,7 @@
 import XCTest
 @testable import Sampa_Swift
 
-final class Sampa_SwiftTests: XCTestCase {
+final class SPA_Tests: XCTestCase {
     
     func makeTestParams(for date: DateComponents) -> SPAParameters {
         return SPAParameters(
