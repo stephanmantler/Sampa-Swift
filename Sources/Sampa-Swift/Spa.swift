@@ -21,46 +21,60 @@ struct SPAOptions : OptionSet {
 
 struct SPAParameters {
     /// observer local time, including milliseconds
-    let date: DateComponents
+    var date: DateComponents
 
     /// DUT1 from https://datacenter.iers.org/data/latestVersion/6_BULLETIN_A_V2013_016.txt
-    let delta_ut1: Double = -0.2
+    var delta_ut1: Double = -0.2
     /// same source as DUT1. delta_t = 32.184 + (TAI-UTC) - DUT1
-    let delta_t: Double = 32.184 + 37 + 0.2
+    var delta_t: Double = 32.184 + 37 + 0.2
 
     /// Observer time zone (negative west of Greenwich)
     /// valid range: -18   to   18 hours
-    let timezone: TimeZone
+    var timezone: TimeZone
 
     /// Observer longitude/latitude/elevation
     /// longitude should be -180 to 180, lat -90-90,
-    let location: CLLocation
+    var location: CLLocation
 
     /// average local pressure (millibars)
-    let pressure: Double = 1000
+    var pressure: Double = 1000
 
     /// annual average local temperature in °C
-    let temperature: Double = 10
+    var temperature: Double = 10
 
     /// surface slope measured from the horizontal plane
-    let slope: Double = 0
+    var slope: Double = 0
 
     /// surface azimuth rotation (measured from south to projection of surface normal on horizonal plane, negative east)
-    let azimuthRotation: Double = 0
+    var azimuthRotation: Double = 0
 
     /// atmospheric refraction at sunrise and sunset (0.5667 deg is typical)
-    let atmosphericRefraction: Double = 0.5667
+    var atmosphericRefraction: Double = 0.5667
 }
 
 struct SPAResult {
-    
+    /// topocentric zenith angle [degrees]
+    var zenith: Double = .nan;
+    /// topocentric azimuth angle (westward from south) [for astronomers]
+    var azimuth_astro: Double = .nan;
+    /// topocentric azimuth angle (eastward from north) [for navigators and solar radiation]
+    var azimuth: Double = .nan;
+    /// surface incidence angle [degrees]
+    var incidence: Double = .nan;
+
+    /// local sun transit time (or solar noon) [fractional hour]
+    var suntransit: Double = .nan;
+    //local sunrise time (+/- 30 seconds) [fractional hour]
+    var sunrise: Double = .nan;
+    //local sunset time (+/- 30 seconds) [fractional hour]
+    var sunset: Double = .nan;
 }
 
 class SPA {
     let params: SPAParameters
     
     // MARK: General parameters
-    private let SUN_RADIUS = 0.26667
+    let SUN_RADIUS = 0.26667
     
     // MARK: Earth periodic terms
     let L_TERMS /* [L_COUNT][L_MAX_SUBCOUNT][TERM_COUNT]*/ =
@@ -307,29 +321,32 @@ class SPA {
         }
         //var result = SPAResult()
 
-            jd = calculateJulianDay()
-            calculate_geocentric_sun_right_ascension_and_declination()
+        jd = calculateJulianDay()
+        calculate_geocentric_sun_right_ascension_and_declination()
         
+        h  = observer_hour_angle(nu, params.location.coordinate.longitude, alpha)
+        xi = sun_equatorial_horizontal_parallax(r)
+
+        calculate_right_ascension_parallax_and_topocentric_dec()
+
+        alpha_prime = topocentric_right_ascension(alpha, del_alpha);
+        h_prime     = topocentric_local_hour_angle(h, del_alpha);
+
+        e0      = topocentric_elevation_angle(params.location.coordinate.latitude, delta_prime, h_prime);
+
+        del_e   = atmospheric_refraction_correction(params.pressure, params.temperature,
+                                                    params.atmosphericRefraction, e0);
+        e       = topocentric_elevation_angle_corrected(e0, del_e);
+        
+        var result = SPAResult()
+
+        result.zenith        = topocentric_zenith_angle(e);
+        result.azimuth_astro = topocentric_azimuth_angle_astro(h_prime, params.location.coordinate.latitude, delta_prime);
+        result.azimuth       = topocentric_azimuth_angle(result.azimuth_astro);
+        
+        return result
 /*
-  
-            params.h  = observer_hour_angle(params.nu, params.longitude, params.alpha);
-            params.xi = sun_equatorial_horizontal_parallax(params.r);
 
-            right_ascension_parallax_and_topocentric_dec(params.latitude, params.elevation, params.xi,
-                                    params.h, params.delta, &(params.del_alpha), &(params.delta_prime));
-
-            params.alpha_prime = topocentric_right_ascension(params.alpha, params.del_alpha);
-            params.h_prime     = topocentric_local_hour_angle(params.h, params.del_alpha);
-
-            params.e0      = topocentric_elevation_angle(params.latitude, params.delta_prime, params.h_prime);
-            params.del_e   = atmospheric_refraction_correction(params.pressure, params.temperature,
-                                                             params.atmos_refract, params.e0);
-            params.e       = topocentric_elevation_angle_corrected(params.e0, params.del_e);
-
-            params.zenith        = topocentric_zenith_angle(params.e);
-            params.azimuth_astro = topocentric_azimuth_angle_astro(params.h_prime, params.latitude,
-                                                                               params.delta_prime);
-            params.azimuth       = topocentric_azimuth_angle(params.azimuth_astro);
 
             if ((params.function == SPA_ZA_INC) || (params.function == SPA_ALL))
                 params.incidence  = surface_incidence_angle(params.zenith, params.azimuth_astro,

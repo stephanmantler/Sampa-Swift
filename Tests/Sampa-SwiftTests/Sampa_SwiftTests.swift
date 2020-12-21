@@ -8,7 +8,7 @@ final class Sampa_SwiftTests: XCTestCase {
             date: date,
             timezone: .current,
             location: CLLocation(
-                coordinate: CLLocationCoordinate2D(latitude: 10,longitude: 10),
+                coordinate: CLLocationCoordinate2D(latitude: 64.1466,longitude: -21.9426) /* Reykjavík, Iceland */,
                 altitude: 0,
                 horizontalAccuracy: 0,
                 verticalAccuracy: 0,
@@ -37,16 +37,33 @@ final class Sampa_SwiftTests: XCTestCase {
         XCTAssertEqual(spa.jd, 2460133.18757, accuracy: testAccuracy, "Inaccurate Julian Date Calculation")
     }
     
-    /// Test calculation of heliocentric parameters
-    func testHeliocentricParameters() {
-        let date = DateComponents(timeZone: .none, year: 2010, month: 3, day: 21, hour: 6, minute: 0, second: 0, nanosecond: 0)
-        let params = makeTestParams(for: date)
+    func testComplete() {
+        let date = DateComponents(timeZone: .none, year: 2009, month: 7, day: 22, hour: 1, minute: 33, second: 0, nanosecond: 0)
+        var params = SPAParameters(
+            date: date,
+            timezone: .current,
+            location: CLLocation(
+                coordinate: CLLocationCoordinate2D(latitude: 24.61167, longitude: 143.36167),
+                altitude: 0,
+                horizontalAccuracy: 0,
+                verticalAccuracy: 0,
+                timestamp: Date()))
+        params.delta_t = 66.4
+        params.delta_ut1 = 0
+        params.pressure = 1000
+        params.temperature = 11
+        params.atmosphericRefraction = 0.5667
         
         let spa = SPA(params: params)
         let result = spa.calculate()
-
-        // not sure yet which values to test this against
-        //XCTAssertEqual(spa.l, 0)
+        
+        XCTAssertEqual(result!.azimuth, 104.387917, accuracy: 1e-6)
+        XCTAssertEqual(result!.zenith, 14.512686, accuracy: 1e-6)
+        XCTAssertEqual(spa.l, 299.4024, accuracy: 1e-4)
+        XCTAssertEqual(spa.b, -1.308E-5, accuracy: 1e-7)
+        XCTAssertEqual(spa.r, 1.016024, accuracy: 1e-6)
+        XCTAssertEqual(spa.del_psi, 4.441121e-3, accuracy: 1e-7)
+        XCTAssertEqual(spa.del_epsilon, 1.203311e-3, accuracy: 1e-7)
     }
 
     static var allTests = [

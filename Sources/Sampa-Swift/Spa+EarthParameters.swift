@@ -185,4 +185,91 @@ extension SPA {
         return 8.794 / (3600.0 * r);
     }
 
+    func calculate_right_ascension_parallax_and_topocentric_dec()
+    {
+        var delta_alpha_rad: Double = 0
+        let lat_rad   = deg2rad(params.location.coordinate.latitude)
+        let xi_rad    = deg2rad(xi)
+        let h_rad     = deg2rad(h)
+        let delta_rad = deg2rad(delta)
+        let u = atan(0.99664719 * tan(lat_rad))
+        let y = 0.99664719 * sin(u) + params.location.altitude*sin(lat_rad)/6378140.0
+        let x =              cos(u) + params.location.altitude*cos(lat_rad)/6378140.0
+
+        delta_alpha_rad =      atan2(                -x * sin(xi_rad) * sin(h_rad),
+                                      cos(delta_rad) - x * sin(xi_rad) * cos(h_rad))
+
+        delta_prime = rad2deg(atan2((sin(delta_rad) - y * sin(xi_rad)) * cos(delta_alpha_rad),
+                                      cos(delta_rad) - x * sin(xi_rad) * cos(h_rad)))
+
+        del_alpha = rad2deg(delta_alpha_rad)
+    }
+    
+    func topocentric_right_ascension(_ alpha_deg: Double, _ delta_alpha: Double) -> Double
+    {
+        return alpha_deg + delta_alpha;
+    }
+
+    func topocentric_local_hour_angle(_ h: Double, _ delta_alpha: Double) -> Double
+    {
+        return h - delta_alpha;
+    }
+
+    func topocentric_elevation_angle(_ latitude: Double, _ delta_prime: Double, _ h_prime: Double) -> Double
+    {
+        let lat_rad         = deg2rad(latitude);
+        let delta_prime_rad = deg2rad(delta_prime);
+
+        return rad2deg(asin(sin(lat_rad)*sin(delta_prime_rad) +
+                            cos(lat_rad)*cos(delta_prime_rad) * cos(deg2rad(h_prime))));
+    }
+
+    func atmospheric_refraction_correction(_ pressure: Double, _ temperature: Double,
+                                           _ atmos_refract: Double, _ e0: Double) -> Double
+    {
+        var del_e: Double = 0;
+
+        if (e0 >= -1*(SUN_RADIUS + atmos_refract)) {
+            del_e = (pressure / 1010.0) * (283.0 / (273.0 + temperature)) *
+                     1.02 / (60.0 * tan(deg2rad(e0 + 10.3/(e0 + 5.11))));
+        }
+
+        return del_e;
+    }
+
+    func topocentric_elevation_angle_corrected(_ e0: Double, _ delta_e: Double) -> Double
+    {
+        return e0 + delta_e;
+    }
+
+    func topocentric_zenith_angle(_ e: Double) -> Double
+    {
+        return 90.0 - e;
+    }
+
+    func topocentric_azimuth_angle_astro(_ h_prime: Double, _ latitude: Double, _ delta_prime: Double) -> Double
+    {
+        let h_prime_rad = deg2rad(h_prime);
+        let lat_rad     = deg2rad(latitude);
+
+        return limit_degrees(rad2deg(atan2(sin(h_prime_rad),
+                             cos(h_prime_rad)*sin(lat_rad) - tan(deg2rad(delta_prime))*cos(lat_rad))));
+    }
+
+    func topocentric_azimuth_angle(_ azimuth_astro: Double) -> Double
+    {
+        return limit_degrees(azimuth_astro + 180.0);
+    }
+
+    func surface_incidence_angle(_ zenith: Double, _ azimuth_astro: Double, _ azm_rotation: Double,
+                                 _ slope: Double) -> Double
+    {
+        let zenith_rad = deg2rad(zenith);
+        let slope_rad  = deg2rad(slope);
+
+        return rad2deg(acos(cos(zenith_rad)*cos(slope_rad)  +
+                            sin(slope_rad )*sin(zenith_rad) * cos(deg2rad(azimuth_astro - azm_rotation))));
+    }
+
+
 }
