@@ -41,7 +41,7 @@ extension SPA {
             sum[i] = earth_periodic_term_summation(L_TERMS[i], jme)
         }
 
-        return limit_degrees(rad2deg(earth_values(sum, jme)))
+        return Utils.limit_degrees(Utils.rad2deg(earth_values(sum, jme)))
 
     }
 
@@ -53,7 +53,7 @@ extension SPA {
             sum[i] = earth_periodic_term_summation(B_TERMS[i], jme)
         }
 
-        return rad2deg(earth_values(sum, jme))
+        return Utils.rad2deg(earth_values(sum, jme))
 
     }
     
@@ -84,27 +84,27 @@ extension SPA {
 
     func mean_elongation_moon_sun(_ jce: Double) -> Double
     {
-        return third_order_polynomial(1.0/189474.0, -0.0019142, 445267.11148, 297.85036, jce)
+        return Utils.third_order_polynomial(1.0/189474.0, -0.0019142, 445267.11148, 297.85036, jce)
     }
 
     func mean_anomaly_sun(_ jce: Double) -> Double
     {
-        return third_order_polynomial(-1.0/300000.0, -0.0001603, 35999.05034, 357.52772, jce)
+        return Utils.third_order_polynomial(-1.0/300000.0, -0.0001603, 35999.05034, 357.52772, jce)
     }
 
     func mean_anomaly_moon(_ jce: Double) -> Double
     {
-        return third_order_polynomial(1.0/56250.0, 0.0086972, 477198.867398, 134.96298, jce)
+        return Utils.third_order_polynomial(1.0/56250.0, 0.0086972, 477198.867398, 134.96298, jce)
     }
 
     func argument_latitude_moon(_ jce: Double) -> Double
     {
-        return third_order_polynomial(1.0/327270.0, -0.0036825, 483202.017538, 93.27191, jce)
+        return Utils.third_order_polynomial(1.0/327270.0, -0.0036825, 483202.017538, 93.27191, jce)
     }
 
     func ascending_longitude_moon(_ jce: Double) -> Double
     {
-        return third_order_polynomial(1.0/450000.0, 0.0020708, -1934.136261, 125.04452, jce)
+        return Utils.third_order_polynomial(1.0/450000.0, 0.0020708, -1934.136261, 125.04452, jce)
     }
     
     func nutation_longitude_and_obliquity(_ jce: Double, _ x: [Double])
@@ -114,7 +114,7 @@ extension SPA {
         var sum_epsilon: Double = 0
 
         for i in 0..<Y_TERMS.count {
-            xy_term_sum  = deg2rad(xy_term_summation(i, x))
+            xy_term_sum  = Utils.deg2rad(xy_term_summation(i, x))
             sum_psi     += (PE_TERMS[i][TERM_PSI_A] + jce*PE_TERMS[i][TERM_PSI_B])*sin(xy_term_sum)
             sum_epsilon += (PE_TERMS[i][TERM_EPS_C] + jce*PE_TERMS[i][TERM_EPS_D])*cos(xy_term_sum)
         }
@@ -148,36 +148,13 @@ extension SPA {
 
     func greenwich_mean_sidereal_time (_ jd: Double, _ jc: Double) -> Double
     {
-        return limit_degrees(280.46061837 + 360.98564736629 * (jd - 2451545.0) +
+        return Utils.limit_degrees(280.46061837 + 360.98564736629 * (jd - 2451545.0) +
                                            jc*jc*(0.000387933 - jc/38710000.0))
     }
 
     func greenwich_sidereal_time (_ nu0: Double, _ delta_psi: Double, _ epsilon: Double) -> Double
     {
-        return nu0 + delta_psi*cos(deg2rad(epsilon))
-    }
-    
-    func geocentric_right_ascension(_ lamda: Double, _ epsilon: Double, _ beta: Double) -> Double
-    {
-        let lamda_rad   = deg2rad(lamda)
-        let epsilon_rad = deg2rad(epsilon)
-
-        return limit_degrees(rad2deg(atan2(sin(lamda_rad)*cos(epsilon_rad) -
-                                           tan(deg2rad(beta))*sin(epsilon_rad), cos(lamda_rad))))
-    }
-
-    func geocentric_declination(_ beta: Double, _ epsilon: Double, _ lamda: Double) -> Double
-    {
-        let beta_rad    = deg2rad(beta)
-        let epsilon_rad = deg2rad(epsilon)
-
-        return rad2deg(asin(sin(beta_rad)*cos(epsilon_rad) +
-                            cos(beta_rad)*sin(epsilon_rad)*sin(deg2rad(lamda))))
-    }
-
-    func observer_hour_angle(_ nu: Double, _ longitude: Double, _ alpha_deg: Double) -> Double
-    {
-        return limit_degrees(nu + longitude - alpha_deg)
+        return nu0 + delta_psi*cos(Utils.deg2rad(epsilon))
     }
 
     func sun_equatorial_horizontal_parallax(_ r: Double) -> Double
@@ -185,90 +162,14 @@ extension SPA {
         return 8.794 / (3600.0 * r)
     }
 
-    func calculate_right_ascension_parallax_and_topocentric_dec()
-    {
-        var delta_alpha_rad: Double = 0
-        let lat_rad   = deg2rad(params.location.coordinate.latitude)
-        let xi_rad    = deg2rad(xi)
-        let h_rad     = deg2rad(h)
-        let delta_rad = deg2rad(delta)
-        let u = atan(0.99664719 * tan(lat_rad))
-        let y = 0.99664719 * sin(u) + params.location.altitude*sin(lat_rad)/6378140.0
-        let x =              cos(u) + params.location.altitude*cos(lat_rad)/6378140.0
-
-        delta_alpha_rad =      atan2(                -x * sin(xi_rad) * sin(h_rad),
-                                      cos(delta_rad) - x * sin(xi_rad) * cos(h_rad))
-
-        delta_prime = rad2deg(atan2((sin(delta_rad) - y * sin(xi_rad)) * cos(delta_alpha_rad),
-                                      cos(delta_rad) - x * sin(xi_rad) * cos(h_rad)))
-
-        del_alpha = rad2deg(delta_alpha_rad)
-    }
-    
-    func topocentric_right_ascension(_ alpha_deg: Double, _ delta_alpha: Double) -> Double
-    {
-        return alpha_deg + delta_alpha
-    }
-
-    func topocentric_local_hour_angle(_ h: Double, _ delta_alpha: Double) -> Double
-    {
-        return h - delta_alpha
-    }
-
-    func topocentric_elevation_angle(_ latitude: Double, _ delta_prime: Double, _ h_prime: Double) -> Double
-    {
-        let lat_rad         = deg2rad(latitude)
-        let delta_prime_rad = deg2rad(delta_prime)
-
-        return rad2deg(asin(sin(lat_rad)*sin(delta_prime_rad) +
-                            cos(lat_rad)*cos(delta_prime_rad) * cos(deg2rad(h_prime))))
-    }
-
-    func atmospheric_refraction_correction(_ pressure: Double, _ temperature: Double,
-                                           _ atmos_refract: Double, _ e0: Double) -> Double
-    {
-        var del_e: Double = 0
-
-        if (e0 >= -1*(SUN_RADIUS + atmos_refract)) {
-            del_e = (pressure / 1010.0) * (283.0 / (273.0 + temperature)) *
-                     1.02 / (60.0 * tan(deg2rad(e0 + 10.3/(e0 + 5.11))))
-        }
-
-        return del_e
-    }
-
-    func topocentric_elevation_angle_corrected(_ e0: Double, _ delta_e: Double) -> Double
-    {
-        return e0 + delta_e
-    }
-
-    func topocentric_zenith_angle(_ e: Double) -> Double
-    {
-        return 90.0 - e
-    }
-
-    func topocentric_azimuth_angle_astro(_ h_prime: Double, _ latitude: Double, _ delta_prime: Double) -> Double
-    {
-        let h_prime_rad = deg2rad(h_prime)
-        let lat_rad     = deg2rad(latitude)
-
-        return limit_degrees(rad2deg(atan2(sin(h_prime_rad),
-                             cos(h_prime_rad)*sin(lat_rad) - tan(deg2rad(delta_prime))*cos(lat_rad))))
-    }
-
-    func topocentric_azimuth_angle(_ azimuth_astro: Double) -> Double
-    {
-        return limit_degrees(azimuth_astro + 180.0)
-    }
-
     func surface_incidence_angle(_ zenith: Double, _ azimuth_astro: Double, _ azm_rotation: Double,
                                  _ slope: Double) -> Double
     {
-        let zenith_rad = deg2rad(zenith)
-        let slope_rad  = deg2rad(slope)
+        let zenith_rad = Utils.deg2rad(zenith)
+        let slope_rad  = Utils.deg2rad(slope)
 
-        return rad2deg(acos(cos(zenith_rad)*cos(slope_rad)  +
-                            sin(slope_rad )*sin(zenith_rad) * cos(deg2rad(azimuth_astro - azm_rotation))))
+        return Utils.rad2deg(acos(cos(zenith_rad)*cos(slope_rad)  +
+                                    sin(slope_rad )*sin(zenith_rad) * cos(Utils.deg2rad(azimuth_astro - azm_rotation))))
     }
 
 

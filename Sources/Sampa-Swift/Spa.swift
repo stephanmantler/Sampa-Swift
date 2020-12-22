@@ -73,9 +73,6 @@ struct SPAResult {
 class SPA {
     var params: SPAParameters
     
-    // MARK: General parameters
-    let SUN_RADIUS = 0.26667
-    
     // MARK: Earth periodic terms
     let L_TERMS /* [L_COUNT][L_MAX_SUBCOUNT][TERM_COUNT]*/ =
     [
@@ -243,31 +240,6 @@ class SPA {
     /// sun transit altitude [degrees]
     var sta : Double = .signalingNaN
     
-    func rad2deg(_ radians: Double) -> Double
-    {
-        return (180.0 / Double.pi)*radians
-    }
-    
-    func deg2rad(_ degrees: Double) -> Double
-    {
-        return (Double.pi / 180.0)*degrees
-    }
-
-    func limit_degrees(_ degrees: Double) -> Double
-    {
-        var limited: Double
-        let dgs = degrees / 360
-
-        limited = 360.0*(dgs-floor(dgs))
-        if (limited < 0) { limited += 360.0 }
-
-        return limited
-    }
-        
-    func third_order_polynomial(_ a: Double, _ b: Double, _ c: Double, _ d: Double, _ x: Double) -> Double
-    {
-        return ((a*x + b)*x + c)*x + d
-    }
     
     func xy_term_summation(_ i: Int, _ x: [Double]) -> Double
     {
@@ -310,8 +282,8 @@ class SPA {
         nu0       = greenwich_mean_sidereal_time (jd, jc)
         nu        = greenwich_sidereal_time (nu0, del_psi, epsilon)
 
-        alpha = geocentric_right_ascension(lamda, epsilon, beta)
-        delta = geocentric_declination(beta, epsilon, lamda)
+        alpha = Utils.geocentric_right_ascension(lamda, epsilon, beta)
+        delta = Utils.geocentric_declination(beta, epsilon, lamda)
     }
     
     func calculate(_ options: SPAOptions = .zenithAzimuth) -> SPAResult? {
@@ -324,32 +296,34 @@ class SPA {
         jd = calculateJulianDay()
         calculate_geocentric_sun_right_ascension_and_declination()
         
-        h  = observer_hour_angle(nu, params.location.coordinate.longitude, alpha)
+        h  = Utils.observer_hour_angle(nu, params.location.coordinate.longitude, alpha)
         xi = sun_equatorial_horizontal_parallax(r)
 
-        calculate_right_ascension_parallax_and_topocentric_dec()
+        let dp = Utils.right_ascension_parallax_and_topocentric_dec(params.location.coordinate.latitude, params.location.altitude, xi, h, delta)
+        delta_prime = dp.0
+        del_alpha = dp.1
 
-        alpha_prime = topocentric_right_ascension(alpha, del_alpha)
-        h_prime     = topocentric_local_hour_angle(h, del_alpha)
+        alpha_prime = Utils.topocentric_right_ascension(alpha, del_alpha)
+        h_prime     = Utils.topocentric_local_hour_angle(h, del_alpha)
 
-        e0 = topocentric_elevation_angle(
+        e0 = Utils.topocentric_elevation_angle(
             params.location.coordinate.latitude,
             delta_prime,
             h_prime)
 
-        del_e = atmospheric_refraction_correction(
+        del_e = Utils.atmospheric_refraction_correction(
             params.pressure,
             params.temperature,
             params.atmosphericRefraction,
             e0)
         
-        e = topocentric_elevation_angle_corrected(e0, del_e)
+        e = Utils.topocentric_elevation_angle_corrected(e0, del_e)
         
         var result = SPAResult()
 
-        result.zenith        = topocentric_zenith_angle(e)
-        result.azimuth_astro = topocentric_azimuth_angle_astro(h_prime, params.location.coordinate.latitude, delta_prime)
-        result.azimuth       = topocentric_azimuth_angle(result.azimuth_astro)
+        result.zenith        = Utils.topocentric_zenith_angle(e)
+        result.azimuth_astro = Utils.topocentric_azimuth_angle_astro(h_prime, params.location.coordinate.latitude, delta_prime)
+        result.azimuth       = Utils.topocentric_azimuth_angle(result.azimuth_astro)
         
         if options.contains(.incidence) {
             result.incidence = surface_incidence_angle(

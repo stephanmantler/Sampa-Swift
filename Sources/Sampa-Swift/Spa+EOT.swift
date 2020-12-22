@@ -19,7 +19,7 @@ let SUN_SET = 2
 extension SPA {
     func sun_mean_longitude(_ jme: Double) -> Double
     {
-        return limit_degrees(280.4664567 + jme*(360007.6982779 + jme*(0.03032028 +
+        return Utils.limit_degrees(280.4664567 + jme*(360007.6982779 + jme*(0.03032028 +
                         jme*(1/49931.0   + jme*(-1/15300.0     + jme*(-1/2000000.0))))))
     }
 
@@ -36,7 +36,7 @@ extension SPA {
 
     func eot(_ m: Double, _ alpha: Double, _ del_psi: Double, _ epsilon: Double) -> Double
     {
-        return limit_minutes(4.0*(m - 0.0057183 - alpha + del_psi*cos(deg2rad(epsilon))))
+        return limit_minutes(4.0*(m - 0.0057183 - alpha + del_psi*cos(Utils.deg2rad(epsilon))))
     }
 
     func approx_sun_transit_time(_ alpha_zero: Double, _ longitude: Double, _ nu: Double) -> Double
@@ -67,13 +67,13 @@ extension SPA {
     func sun_hour_angle_at_rise_set(_ latitude: Double, _ delta_zero: Double, _ h0_prime: Double) -> Double
     {
         var h0: Double             = -99999
-        let latitude_rad: Double   = deg2rad(latitude)
-        let delta_zero_rad: Double = deg2rad(delta_zero)
-        let argument: Double       = (sin(deg2rad(h0_prime)) - sin(latitude_rad)*sin(delta_zero_rad)) /
+        let latitude_rad: Double   = Utils.deg2rad(latitude)
+        let delta_zero_rad: Double = Utils.deg2rad(delta_zero)
+        let argument: Double       = (sin(Utils.deg2rad(h0_prime)) - sin(latitude_rad)*sin(delta_zero_rad)) /
                                                          (cos(latitude_rad)*cos(delta_zero_rad))
 
         if (fabs(argument) <= 1) {
-            h0 = limit_degrees180(rad2deg(acos(argument)))
+            h0 = limit_degrees180(Utils.rad2deg(acos(argument)))
         }
 
         return h0
@@ -92,11 +92,11 @@ extension SPA {
 
     func rts_sun_altitude(_ latitude: Double, _ delta_prime: Double, _ h_prime: Double) -> Double
     {
-        let latitude_rad    = deg2rad(latitude)
-        let delta_prime_rad = deg2rad(delta_prime)
+        let latitude_rad    = Utils.deg2rad(latitude)
+        let delta_prime_rad = Utils.deg2rad(delta_prime)
 
-        return rad2deg(asin(sin(latitude_rad)*sin(delta_prime_rad) +
-                            cos(latitude_rad)*cos(delta_prime_rad)*cos(deg2rad(h_prime))))
+        return Utils.rad2deg(asin(sin(latitude_rad)*sin(delta_prime_rad) +
+                                    cos(latitude_rad)*cos(delta_prime_rad)*cos(Utils.deg2rad(h_prime))))
     }
     
     func limit_zero2one(_ value: Double) -> Double
@@ -135,7 +135,7 @@ extension SPA {
         _ sun: Int) -> Double
     {
         return m_rts[sun] + (h_rts[sun] - h0_prime) /
-              (360.0*cos(deg2rad(delta_prime[sun]))*cos(deg2rad(latitude))*sin(deg2rad(h_prime[sun])))
+            (360.0*cos(Utils.deg2rad(delta_prime[sun]))*cos(Utils.deg2rad(latitude))*sin(Utils.deg2rad(h_prime[sun])))
     }
 
     func calculate_eot_and_sun_rise_transit_set() -> (Double, Double, Double)
@@ -154,7 +154,7 @@ extension SPA {
         var delta_prime: [Double] = Array(repeating: 0, count: JD_COUNT)
         var h_prime: [Double] = Array(repeating: 0, count: JD_COUNT)
         
-        let h0_prime = -1*(SUN_RADIUS + params.atmosphericRefraction)
+        let h0_prime = -1*(Utils.SUN_RADIUS + params.atmosphericRefraction)
 
         m        = sun_mean_longitude(jme)
         eot = eot(m, self.alpha, del_psi, epsilon)

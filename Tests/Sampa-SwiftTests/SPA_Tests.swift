@@ -110,5 +110,7 @@ final class SPA_Tests: XCTestCase {
 
     static var allTests = [
         ("testJulianDate", testJulianDate),
+        ("testBaselineSPA", testBaselineSPA),
+        ("testSunriseSunTransitSunset", testSunriseSunTransitSunset)
     ]
 }
