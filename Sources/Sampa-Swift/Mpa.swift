@@ -172,20 +172,20 @@ class MPA {
 
     func calculate(using spa: SPA) -> MPAResult
     {
-        l_prime = moon_mean_longitude(spa.jce)
-        d       = moon_mean_elongation(spa.jce)
-        m       = sun_mean_anomaly(spa.jce)
-        m_prime = moon_mean_anomaly(spa.jce)
-        f       = moon_latitude_argument(spa.jce)
+        l_prime = moon_mean_longitude(spa.julianEphemerisCentury)
+        d       = moon_mean_elongation(spa.julianEphemerisCentury)
+        m       = sun_mean_anomaly(spa.julianEphemerisCentury)
+        m_prime = moon_mean_anomaly(spa.julianEphemerisCentury)
+        f       = moon_latitude_argument(spa.julianEphemerisCentury)
         
-        let lr = moon_periodic_term_summation(d, m, m_prime, f, spa.jce, ML_TERMS)
+        let lr = moon_periodic_term_summation(d, m, m_prime, f, spa.julianEphemerisCentury, ML_TERMS)
         l = lr.0
         r = lr.1
         
-        let b0 = moon_periodic_term_summation(d, m, m_prime, f, spa.jce, MB_TERMS)
+        let b0 = moon_periodic_term_summation(d, m, m_prime, f, spa.julianEphemerisCentury, MB_TERMS)
         b = b0.0
 
-        let lb =  moon_longitude_and_latitude(spa.jce, l_prime, f, m_prime, l, b)
+        let lb =  moon_longitude_and_latitude(spa.julianEphemerisCentury, l_prime, f, m_prime, l, b)
         lamda_prime = lb.0
         beta = lb.1
 
@@ -193,11 +193,11 @@ class MPA {
         pi = moon_equatorial_horiz_parallax(cap_delta)
 
 
-        lamda = apparent_moon_longitude(lamda_prime, spa.del_psi)
-        alpha = Utils.geocentric_right_ascension(lamda, spa.epsilon, beta)
-        delta = Utils.geocentric_declination(beta, spa.epsilon, lamda)
+        lamda = apparent_moon_longitude(lamda_prime, spa.nutationLongitude)
+        alpha = Utils.geocentric_right_ascension(lamda, spa.eclipticTrueObliquity, beta)
+        delta = Utils.geocentric_declination(beta, spa.eclipticTrueObliquity, lamda)
 
-        h  = Utils.observer_hour_angle(spa.nu, spa.params.location.coordinate.longitude, alpha)
+        h  = Utils.observer_hour_angle(spa.greenwichSiderealTime, spa.params.location.coordinate.longitude, alpha)
 
         
         let ap = Utils.right_ascension_parallax_and_topocentric_dec(

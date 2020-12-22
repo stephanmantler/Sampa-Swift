@@ -28,12 +28,6 @@ struct SPAParameters {
     /// same source as DUT1. delta_t = 32.184 + (TAI-UTC) - DUT1
     var delta_t: Double = 32.184 + 37 + 0.2
 
-    
-    // Observer time zone (negative west of Greenwich)
-    // valid range: -18   to   18 hours
-    // var timezone: TimeZone // has been folded into DateComponents
-    //
-
     /// Observer longitude/latitude/elevation
     /// longitude should be -180 to 180, lat -90-90,
     var location: CLLocation
@@ -76,7 +70,7 @@ class SPA {
     var params: SPAParameters
     
     // MARK: Earth periodic terms
-    let L_TERMS /* [L_COUNT][L_MAX_SUBCOUNT][TERM_COUNT]*/ =
+    let L_TERMS =
     [
         [
             [175347046.0,0,0], [3341656.0,4.6692568,6283.07585], [34894.0,4.6261,12566.1517], [3497.0,2.7441,5753.3849], [3418.0,2.8289,3.5231], [3136.0,3.6277,77713.7715], [2676.0,4.4181,7860.4194], [2343.0,6.1352,3930.2097], [1324.0,0.7425,11506.7698], [1273.0,2.0371,529.691], [1199.0,1.1096,1577.3435], [990,5.233,5884.927], [902,2.045,26.298], [857,3.508,398.149], [780,1.179,5223.694], [753,2.533,5507.553], [505,4.583,18849.228], [492,4.205,775.523], [357,2.92,0.067], [317,5.849,11790.629], [284,1.899,796.298], [271,0.315,10977.079], [243,0.345,5486.778], [206,4.806,2544.314], [205,1.869,5573.143], [202,2.458,6069.777], [156,0.833,213.299], [132,3.411,2942.463], [126,1.083,20.775], [115,0.645,0.98], [103,0.636,4694.003], [102,0.976,15720.839], [102,4.267,7.114], [99,6.21,2146.17], [98,0.68,155.42], [86,5.98,161000.69], [85,1.3,6275.96], [85,3.67,71430.7], [80,1.81,17260.15], [79,3.04,12036.46], [75,1.76,5088.63], [74,3.5,3154.69], [74,4.68,801.82], [70,0.83,9437.76], [62,3.98,8827.39], [61,1.82,7084.9], [57,2.78,6286.6], [56,4.39,14143.5], [56,3.47,6279.55], [52,0.19,12139.55], [52,1.33,1748.02], [51,0.28,5856.48], [49,0.49,1194.45], [41,5.37,8429.24], [41,2.4,19651.05], [39,6.17,10447.39], [37,6.04,10213.29], [37,2.57,1059.38], [36,1.71,2352.87], [36,1.78,6812.77], [33,0.59,17789.85], [30,0.44,83996.85], [30,2.74,1349.87], [25,3.16,4690.48]
@@ -93,7 +87,7 @@ class SPA {
         ]
     ]
     
-    let B_TERMS /* [B_COUNT][B_MAX_SUBCOUNT][TERM_COUNT] */ =
+    let B_TERMS =
     [
         [
             [280.0,3.199,84334.662], [102.0,5.422,5507.553], [80,3.88,5223.69], [44,3.7,2352.87], [32,4,1577.34]
@@ -103,7 +97,7 @@ class SPA {
         ]
     ]
 
-    let R_TERMS /* [R_COUNT][R_MAX_SUBCOUNT][TERM_COUNT] */ =
+    let R_TERMS =
     [
         [
             [100013989.0,0,0], [1670700.0,3.0984635,6283.07585], [13956.0,3.05525,12566.1517], [3084.0,5.1985,77713.7715], [1628.0,1.1739,5753.3849], [1576.0,2.8469,7860.4194], [925.0,5.453,11506.77], [542.0,4.564,3930.21], [472.0,3.661,5884.927], [346.0,0.964,5507.553], [329.0,5.9,5223.694], [307.0,0.299,5573.143], [243.0,4.273,11790.629], [212.0,5.847,1577.344], [186.0,5.022,10977.079], [175.0,3.012,18849.228], [110.0,5.055,5486.778], [98,0.89,6069.78], [86,5.69,15720.84], [86,1.27,161000.69], [65,0.27,17260.15], [63,0.92,529.69], [57,2.01,83996.85], [56,5.24,71430.7], [49,3.25,2544.31], [47,2.58,775.52], [45,5.54,9437.76], [43,6.01,6275.96], [39,5.36,4694], [38,2.39,8827.39], [37,0.83,19651.05], [37,4.9,12139.55], [36,1.67,12036.46], [35,1.84,2942.46], [33,0.24,7084.9], [32,0.18,5088.63], [32,1.78,398.15], [28,1.21,6286.6], [28,1.9,6279.55], [26,4.59,10447.39]
@@ -159,29 +153,29 @@ class SPA {
 
         return true
     }
-    /// Julian day
-    var jd : Double = .signalingNaN
+    /// Julian date
+    var julianDate : Double = .signalingNaN
     /// Julian century
-    var jc : Double = .signalingNaN
+    var julianCentury : Double = .signalingNaN
 
     /// Julian ephemeris day
-    var jde : Double = .signalingNaN
+    var julianEphemerisDay : Double = .signalingNaN
     /// Julian ephemeris century
-    var jce : Double = .signalingNaN
+    var julianEphemerisCentury : Double = .signalingNaN
     /// Julian ephemeris millennium
-    var jme : Double = .signalingNaN
+    var julianEphemerisMillennium : Double = .signalingNaN
 
     /// earth heliocentric longitude [degrees]
-    var l : Double = .signalingNaN
+    var earthHeliocentricLongitude : Double = .signalingNaN
     /// earth heliocentric latitude [degrees]
-    var b : Double = .signalingNaN
+    var earthHeliocentricLatitude : Double = .signalingNaN
     /// earth radius vector [Astronomical Units, AU]
-    var r : Double = .signalingNaN
+    var earthRadiusVector : Double = .signalingNaN
 
     /// geocentric longitude [degrees]
-    var theta : Double = .signalingNaN
+    var geocentricLongitude : Double = .signalingNaN
     /// geocentric latitude [degrees]
-    var beta : Double = .signalingNaN
+    var geocentricLatitude : Double = .signalingNaN
 
     /*
     var x0 : Double = .signalingNaN         //mean elongation (moon-sun) [degrees]
@@ -191,57 +185,56 @@ class SPA {
     var x4 : Double = .signalingNaN         //ascending longitude (moon) [degrees]
 */
     /// nutation longitude [degrees]
-    var del_psi : Double = .signalingNaN
+    var nutationLongitude : Double = .signalingNaN
     /// nutation obliquity [degrees]
-    var del_epsilon : Double = .signalingNaN
+    var nutationObliquity : Double = .signalingNaN
     /// ecliptic mean obliquity [arc seconds]
-    var epsilon0 : Double = .signalingNaN
+    var eclipticMeanObliquity : Double = .signalingNaN
     /// ecliptic true obliquity  [degrees]
-    var epsilon : Double = .signalingNaN
+    var eclipticTrueObliquity : Double = .signalingNaN
 
     /// aberration correction [degrees]
-    var del_tau : Double = .signalingNaN
+    var aberrationCorrection : Double = .signalingNaN
     /// apparent sun longitude [degrees]
-    var lamda : Double = .signalingNaN
+    var apparentSunLongitude : Double = .signalingNaN
     /// Greenwich mean sidereal time [degrees]
-    var nu0 : Double = .signalingNaN
+    var greenwichMeanSiderealTime : Double = .signalingNaN
     /// Greenwich sidereal time [degrees]
-    var nu : Double = .signalingNaN
+    var greenwichSiderealTime : Double = .signalingNaN
 
     /// geocentric sun right ascension [degrees]
-    var alpha : Double = .signalingNaN
+    var geocentricSunRightAscension : Double = .signalingNaN
     /// geocentric sun declination [degrees]
-    var delta : Double = .signalingNaN
+    var geocentricSunDeclination : Double = .signalingNaN
 
     /// observer hour angle [degrees]
-    var h : Double = .signalingNaN
+    var observerHourAngle : Double = .signalingNaN
     /// sun equatorial horizontal parallax [degrees]
-    var xi : Double = .signalingNaN
+    var sunEquatorialHorizontalParallax : Double = .signalingNaN
     /// sun right ascension parallax [degrees]
-    var del_alpha : Double = .signalingNaN
+    var sunRightAscensionParallax : Double = .signalingNaN
     /// topocentric sun declination [degrees]
-    var delta_prime : Double = .signalingNaN
+    var topocentricSunDeclination : Double = .signalingNaN
     /// topocentric sun right ascension [degrees]
-    var alpha_prime : Double = .signalingNaN
+    var topocentricSunRightAscension : Double = .signalingNaN
     /// topocentric local hour angle [degrees]
-    var h_prime : Double = .signalingNaN
+    var topocentricLocalHourAngle : Double = .signalingNaN
     
     /// topocentric elevation angle (uncorrected) [degrees]
-    var e0 : Double = .signalingNaN
+    var topocentricElevationAngle : Double = .signalingNaN
     /// atmospheric refraction correction [degrees]
-    var del_e : Double = .signalingNaN
+    var atmosphericRefractionCorrection : Double = .signalingNaN
     /// topocentric elevation angle (corrected) [degrees]
-    var e : Double = .signalingNaN
+    var topocentricElevationAngleCorrected : Double = .signalingNaN
     
     /// equation of time [minutes]
-    var eot : Double = .signalingNaN
+    var equationOfTime : Double = .signalingNaN
     /// sunrise hour angle [degrees]
-    var srha : Double = .signalingNaN
+    var sunriseHourAngle : Double = .signalingNaN
     /// sunset hour angle [degrees]
-    var ssha : Double = .signalingNaN
+    var sunsetHourAngle : Double = .signalingNaN
     /// sun transit altitude [degrees]
-    var sta : Double = .signalingNaN
-    
+    var sunTransitAltitude : Double = .signalingNaN
     
     func xy_term_summation(_ i: Int, _ x: [Double]) -> Double
     {
@@ -257,35 +250,35 @@ class SPA {
     {
         var x: [Double] = Array(repeating: Double.nan, count: 5)
 
-        jc = julianCentury(jd)
-        jde = julianEphemerisDay(jd, params.delta_t)
-        jce = julianEphemerisCentury(jde)
-        jme = julianEphemerisMillennium(jce)
+        julianCentury = julianCentury(julianDate)
+        julianEphemerisDay = julianEphemerisDay(julianDate, params.delta_t)
+        julianEphemerisCentury = julianEphemerisCentury(julianEphemerisDay)
+        julianEphemerisMillennium = julianEphemerisMillennium(julianEphemerisCentury)
 
-        l = earth_heliocentric_longitude(jme)
-        b = earth_heliocentric_latitude(jme)
-        r = earth_radius_vector(jme)
+        earthHeliocentricLongitude = earth_heliocentric_longitude(julianEphemerisMillennium)
+        earthHeliocentricLatitude = earth_heliocentric_latitude(julianEphemerisMillennium)
+        earthRadiusVector = earth_radius_vector(julianEphemerisMillennium)
 
-        theta = geocentric_longitude(l)
-        beta  = geocentric_latitude(b)
+        geocentricLongitude = geocentric_longitude(earthHeliocentricLongitude)
+        geocentricLatitude  = geocentric_latitude(earthHeliocentricLatitude)
 
-        x[0] = mean_elongation_moon_sun(jce)
-        x[1] = mean_anomaly_sun(jce)
-        x[2] = mean_anomaly_moon(jce)
-        x[3] = argument_latitude_moon(jce)
-        x[4] = ascending_longitude_moon(jce)
-        nutation_longitude_and_obliquity(jce, x)
+        x[0] = mean_elongation_moon_sun(julianEphemerisCentury)
+        x[1] = mean_anomaly_sun(julianEphemerisCentury)
+        x[2] = mean_anomaly_moon(julianEphemerisCentury)
+        x[3] = argument_latitude_moon(julianEphemerisCentury)
+        x[4] = ascending_longitude_moon(julianEphemerisCentury)
+        calculateNutationLongitudeAndObliquity(julianEphemerisCentury, x)
 
-        epsilon0 = ecliptic_mean_obliquity(jme)
-        epsilon  = ecliptic_true_obliquity(del_epsilon, epsilon0)
+        eclipticMeanObliquity = ecliptic_mean_obliquity(julianEphemerisMillennium)
+        eclipticTrueObliquity  = ecliptic_true_obliquity(nutationObliquity, eclipticMeanObliquity)
 
-        del_tau   = aberration_correction(r)
-        lamda     = apparent_sun_longitude(theta, del_psi, del_tau)
-        nu0       = greenwich_mean_sidereal_time (jd, jc)
-        nu        = greenwich_sidereal_time (nu0, del_psi, epsilon)
+        aberrationCorrection   = aberration_correction(earthRadiusVector)
+        apparentSunLongitude     = apparent_sun_longitude(geocentricLongitude, nutationLongitude, aberrationCorrection)
+        greenwichMeanSiderealTime       = greenwich_mean_sidereal_time (julianDate, julianCentury)
+        greenwichSiderealTime        = greenwich_sidereal_time (greenwichMeanSiderealTime, nutationLongitude, eclipticTrueObliquity)
 
-        alpha = Utils.geocentric_right_ascension(lamda, epsilon, beta)
-        delta = Utils.geocentric_declination(beta, epsilon, lamda)
+        geocentricSunRightAscension = Utils.geocentric_right_ascension(apparentSunLongitude, eclipticTrueObliquity, geocentricLatitude)
+        geocentricSunDeclination = Utils.geocentric_declination(geocentricLatitude, eclipticTrueObliquity, apparentSunLongitude)
     }
     
     func calculate(_ options: SPAOptions = .zenithAzimuth) -> SPAResult? {
@@ -295,36 +288,36 @@ class SPA {
         }
         //var result = SPAResult()
 
-        jd = calculateJulianDay()
+        julianDate = calculateJulianDay()
         calculate_geocentric_sun_right_ascension_and_declination()
         
-        h  = Utils.observer_hour_angle(nu, params.location.coordinate.longitude, alpha)
-        xi = sun_equatorial_horizontal_parallax(r)
+        observerHourAngle  = Utils.observer_hour_angle(greenwichSiderealTime, params.location.coordinate.longitude, geocentricSunRightAscension)
+        sunEquatorialHorizontalParallax = sun_equatorial_horizontal_parallax(earthRadiusVector)
 
-        let dp = Utils.right_ascension_parallax_and_topocentric_dec(params.location.coordinate.latitude, params.location.altitude, xi, h, delta)
-        delta_prime = dp.0
-        del_alpha = dp.1
+        let dp = Utils.right_ascension_parallax_and_topocentric_dec(params.location.coordinate.latitude, params.location.altitude, sunEquatorialHorizontalParallax, observerHourAngle, geocentricSunDeclination)
+        topocentricSunDeclination = dp.0
+        sunRightAscensionParallax = dp.1
 
-        alpha_prime = Utils.topocentric_right_ascension(alpha, del_alpha)
-        h_prime     = Utils.topocentric_local_hour_angle(h, del_alpha)
+        topocentricSunRightAscension = Utils.topocentric_right_ascension(geocentricSunRightAscension, sunRightAscensionParallax)
+        topocentricLocalHourAngle     = Utils.topocentric_local_hour_angle(observerHourAngle, sunRightAscensionParallax)
 
-        e0 = Utils.topocentric_elevation_angle(
+        topocentricElevationAngle = Utils.topocentric_elevation_angle(
             params.location.coordinate.latitude,
-            delta_prime,
-            h_prime)
+            topocentricSunDeclination,
+            topocentricLocalHourAngle)
 
-        del_e = Utils.atmospheric_refraction_correction(
+        atmosphericRefractionCorrection = Utils.atmospheric_refraction_correction(
             params.pressure,
             params.temperature,
             params.atmosphericRefraction,
-            e0)
+            topocentricElevationAngle)
         
-        e = Utils.topocentric_elevation_angle_corrected(e0, del_e)
+        topocentricElevationAngleCorrected = Utils.topocentric_elevation_angle_corrected(topocentricElevationAngle, atmosphericRefractionCorrection)
         
         var result = SPAResult()
 
-        result.zenith        = Utils.topocentric_zenith_angle(e)
-        result.azimuth_astro = Utils.topocentric_azimuth_angle_astro(h_prime, params.location.coordinate.latitude, delta_prime)
+        result.zenith        = Utils.topocentric_zenith_angle(topocentricElevationAngleCorrected)
+        result.azimuth_astro = Utils.topocentric_azimuth_angle_astro(topocentricLocalHourAngle, params.location.coordinate.latitude, topocentricSunDeclination)
         result.azimuth       = Utils.topocentric_azimuth_angle(result.azimuth_astro)
         
         if options.contains(.incidence) {

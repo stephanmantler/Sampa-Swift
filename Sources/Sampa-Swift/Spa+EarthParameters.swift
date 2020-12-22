@@ -107,7 +107,7 @@ extension SPA {
         return Utils.third_order_polynomial(1.0/450000.0, 0.0020708, -1934.136261, 125.04452, jce)
     }
     
-    func nutation_longitude_and_obliquity(_ jce: Double, _ x: [Double])
+    func calculateNutationLongitudeAndObliquity(_ jce: Double, _ x: [Double])
     {
         var xy_term_sum: Double
         var sum_psi: Double = 0
@@ -119,8 +119,8 @@ extension SPA {
             sum_epsilon += (PE_TERMS[i][TERM_EPS_C] + jce*PE_TERMS[i][TERM_EPS_D])*cos(xy_term_sum)
         }
 
-        del_psi     = sum_psi     / 36000000.0
-        del_epsilon = sum_epsilon / 36000000.0
+        nutationLongitude     = sum_psi     / 36000000.0
+        nutationObliquity = sum_epsilon / 36000000.0
     }
 
     func ecliptic_mean_obliquity(_ jme: Double) -> Double

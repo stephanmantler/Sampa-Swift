@@ -156,8 +156,8 @@ extension SPA {
         
         let h0_prime = -1*(Utils.SUN_RADIUS + params.atmosphericRefraction)
 
-        m        = sun_mean_longitude(jme)
-        eot = eot(m, self.alpha, del_psi, epsilon)
+        m        = sun_mean_longitude(julianEphemerisMillennium)
+        equationOfTime = eot(m, self.geocentricSunRightAscension, nutationLongitude, eclipticTrueObliquity)
 
         sun_rts.params.date.hour = 0
         sun_rts.params.date.minute = 0
@@ -165,19 +165,19 @@ extension SPA {
         sun_rts.params.delta_ut1 = 0
         sun_rts.params.date.timeZone = TimeZone(secondsFromGMT: 0)!
 
-        sun_rts.jd = sun_rts.calculateJulianDay()
+        sun_rts.julianDate = sun_rts.calculateJulianDay()
         sun_rts.calculate_geocentric_sun_right_ascension_and_declination()
 
-        nu = sun_rts.nu
+        nu = sun_rts.greenwichSiderealTime
 
         sun_rts.params.delta_t = 0
-        sun_rts.jd = sun_rts.jd - 1
+        sun_rts.julianDate = sun_rts.julianDate - 1
         
         for i in 0..<JD_COUNT {
             sun_rts.calculate_geocentric_sun_right_ascension_and_declination()
-            alpha[i] = sun_rts.alpha
-            delta[i] = sun_rts.delta
-            sun_rts.jd = sun_rts.jd + 1
+            alpha[i] = sun_rts.geocentricSunRightAscension
+            delta[i] = sun_rts.geocentricSunDeclination
+            sun_rts.julianDate = sun_rts.julianDate + 1
         }
 
         m_rts[SUN_TRANSIT] = approx_sun_transit_time(
@@ -204,9 +204,9 @@ extension SPA {
                     params.location.coordinate.latitude, delta_prime[i], h_prime[i])
             }
 
-            srha = h_prime[SUN_RISE]
-            ssha = h_prime[SUN_SET]
-            sta  = h_rts[SUN_TRANSIT]
+            sunriseHourAngle = h_prime[SUN_RISE]
+            sunsetHourAngle = h_prime[SUN_SET]
+            sunTransitAltitude  = h_rts[SUN_TRANSIT]
 
             let suntransit = dayfrac_to_local_hr(
                 m_rts[SUN_TRANSIT] - h_prime[SUN_TRANSIT] / 360.0,

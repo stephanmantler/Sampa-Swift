@@ -27,7 +27,7 @@ final class SPA_Tests: XCTestCase {
         
         XCTAssertNotNil(result)
         
-        XCTAssertEqual(spa.jd, 2456293.520833, accuracy: testAccuracy, "Inaccurate Julian Date Calculation")
+        XCTAssertEqual(spa.julianDate, 2456293.520833, accuracy: testAccuracy, "Inaccurate Julian Date Calculation")
         
         date = DateComponents(timeZone: .none, year: 2023, month: 7, day: 7, hour: 16, minute: 30, second: 6, nanosecond: 0)
         params = makeTestParams(for: date)
@@ -35,7 +35,7 @@ final class SPA_Tests: XCTestCase {
         spa = SPA(params: params)
         result = spa.calculate()
         
-        XCTAssertEqual(spa.jd, 2460133.18757, accuracy: testAccuracy, "Inaccurate Julian Date Calculation")
+        XCTAssertEqual(spa.julianDate, 2460133.18757, accuracy: testAccuracy, "Inaccurate Julian Date Calculation")
     }
     
     /**
@@ -100,11 +100,11 @@ final class SPA_Tests: XCTestCase {
         XCTAssertNotNil(result)
         XCTAssertEqual(result!.azimuth, 104.387917, accuracy: 1e-6)
         XCTAssertEqual(result!.zenith, 14.512686, accuracy: 1e-6)
-        XCTAssertEqual(spa.l, 299.4024, accuracy: 1e-4)
-        XCTAssertEqual(spa.b, -1.308E-5, accuracy: 1e-7)
-        XCTAssertEqual(spa.r, 1.016024, accuracy: 1e-6)
-        XCTAssertEqual(spa.del_psi, 4.441121e-3, accuracy: 1e-7)
-        XCTAssertEqual(spa.del_epsilon, 1.203311e-3, accuracy: 1e-7)
+        XCTAssertEqual(spa.earthHeliocentricLongitude, 299.4024, accuracy: 1e-4)
+        XCTAssertEqual(spa.earthHeliocentricLatitude, -1.308E-5, accuracy: 1e-7)
+        XCTAssertEqual(spa.earthRadiusVector, 1.016024, accuracy: 1e-6)
+        XCTAssertEqual(spa.nutationLongitude, 4.441121e-3, accuracy: 1e-7)
+        XCTAssertEqual(spa.nutationObliquity, 1.203311e-3, accuracy: 1e-7)
     }
 
     static var allTests = [
