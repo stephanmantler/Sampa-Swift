@@ -73,7 +73,7 @@ class SaMPA {
         
         result.ems = angular_distance_sun_moon(result.sun.zenith, result.sun.azimuth,
                                                result.moon.zenith, result.moon.azimuth)
-        result.rs  = sun_disk_radius(spa!.r)
+        result.rs  = sun_disk_radius(spa!.earthRadiusVector)
         result.rm  = moon_disk_radius(mpa!.e, mpa!.pi, mpa!.cap_delta)
 
         //sul_area(sampa->ems, sampa->rs, sampa->rm, &sampa->a_sul, &sampa->a_sul_pct);
