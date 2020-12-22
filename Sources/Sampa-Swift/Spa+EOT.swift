@@ -163,7 +163,7 @@ extension SPA {
         sun_rts.params.date.minute = 0
         sun_rts.params.date.second = 0
         sun_rts.params.delta_ut1 = 0
-        sun_rts.params.timezone = TimeZone(secondsFromGMT: 0)!
+        sun_rts.params.date.timeZone = TimeZone(secondsFromGMT: 0)!
 
         sun_rts.jd = sun_rts.calculateJulianDay()
         sun_rts.calculate_geocentric_sun_right_ascension_and_declination()
@@ -210,21 +210,21 @@ extension SPA {
 
             let suntransit = dayfrac_to_local_hr(
                 m_rts[SUN_TRANSIT] - h_prime[SUN_TRANSIT] / 360.0,
-                Double(params.timezone.secondsFromGMT())/3600.0)
+                Double(params.date.timeZone?.secondsFromGMT() ?? 0)/3600.0)
 
             let sunrise = dayfrac_to_local_hr(
                 sun_rise_and_set(
                     m_rts, h_rts, delta_prime,
                     params.location.coordinate.latitude,
                     h_prime, h0_prime, SUN_RISE),
-                Double(params.timezone.secondsFromGMT())/3600.0)
+                Double(params.date.timeZone?.secondsFromGMT() ?? 0)/3600.0)
 
             let sunset  = dayfrac_to_local_hr(
                 sun_rise_and_set(
                     m_rts, h_rts, delta_prime,
                     params.location.coordinate.latitude,
                     h_prime, h0_prime, SUN_SET),
-                Double(params.timezone.secondsFromGMT())/3600.0)
+                Double(params.date.timeZone?.secondsFromGMT() ?? 0)/3600.0)
 
             return (sunrise, suntransit, sunset)
         }

@@ -6,7 +6,6 @@ final class SPA_Tests: XCTestCase {
     func makeTestParams(for date: DateComponents) -> SPAParameters {
         return SPAParameters(
             date: date,
-            timezone: .current,
             location: CLLocation(
                 coordinate: CLLocationCoordinate2D(latitude: 64.1466,longitude: -21.9426) /* Reykjavík, Iceland */,
                 altitude: 0,
@@ -46,10 +45,10 @@ final class SPA_Tests: XCTestCase {
      * [NREL-TP-560-34302](https://www.nrel.gov/docs/fy08osti/34302.pdf) (_Solar Position Algorithm for Solar Radiation Applications_).
      */
     func testSunriseSunTransitSunset() {
-        let date = DateComponents(timeZone: .none, year: 2003, month: 10, day: 17, hour: 12, minute: 30, second: 30, nanosecond: 0)
+        var date = DateComponents(timeZone: .none, year: 2003, month: 10, day: 17, hour: 12, minute: 30, second: 30, nanosecond: 0)
+        date.timeZone = TimeZone(secondsFromGMT: -7 * 3600)
         var params = SPAParameters(
             date: date,
-            timezone: TimeZone(secondsFromGMT: -7 * 3600)!,
             location: CLLocation(
                 coordinate: CLLocationCoordinate2D(latitude: 39.742476, longitude: -105.1786),
                 altitude: 1830.14,
@@ -80,10 +79,10 @@ final class SPA_Tests: XCTestCase {
      */
 
     func testBaselineSPA() {
-        let date = DateComponents(timeZone: .none, year: 2009, month: 7, day: 22, hour: 1, minute: 33, second: 0, nanosecond: 0)
+        var date = DateComponents(timeZone: .none, year: 2009, month: 7, day: 22, hour: 1, minute: 33, second: 0, nanosecond: 0)
+        date.timeZone = .current
         var params = SPAParameters(
             date: date,
-            timezone: .current,
             location: CLLocation(
                 coordinate: CLLocationCoordinate2D(latitude: 24.61167, longitude: 143.36167),
                 altitude: 0,

@@ -20,7 +20,7 @@ struct SPAOptions : OptionSet {
 }
 
 struct SPAParameters {
-    /// observer local time, including milliseconds
+    /// observer local time, including milliseconds and timezone
     var date: DateComponents
 
     /// DUT1 from https://datacenter.iers.org/data/latestVersion/6_BULLETIN_A_V2013_016.txt
@@ -28,9 +28,11 @@ struct SPAParameters {
     /// same source as DUT1. delta_t = 32.184 + (TAI-UTC) - DUT1
     var delta_t: Double = 32.184 + 37 + 0.2
 
-    /// Observer time zone (negative west of Greenwich)
-    /// valid range: -18   to   18 hours
-    var timezone: TimeZone
+    
+    // Observer time zone (negative west of Greenwich)
+    // valid range: -18   to   18 hours
+    // var timezone: TimeZone // has been folded into DateComponents
+    //
 
     /// Observer longitude/latitude/elevation
     /// longitude should be -180 to 180, lat -90-90,

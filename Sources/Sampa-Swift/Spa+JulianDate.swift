@@ -17,7 +17,7 @@ extension SPA {
         //let calendar = Calendar(identifier: .iso8601)
         let dc = params.date// calendar.dateComponents(in: params.timezone, from: params.time)
 
-        day_decimal = Double(dc.day!) + (Double(dc.hour!) - Double(params.timezone.secondsFromGMT())/3600 + (Double(dc.minute!) + (Double(dc.second!) + params.delta_ut1)/60.0)/60.0)/24.0
+        day_decimal = Double(dc.day!) + (Double(dc.hour!) - Double(dc.timeZone?.secondsFromGMT() ?? 0)/3600 + (Double(dc.minute!) + (Double(dc.second!) + params.delta_ut1)/60.0)/60.0)/24.0
 
         var month = Double(dc.month!)
         var year = Double(dc.year!)
