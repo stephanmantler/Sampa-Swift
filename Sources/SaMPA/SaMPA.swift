@@ -41,7 +41,7 @@ public class SaMPA {
     
     var spa: SPA?
     var mpa: MPA?
-    var result: SaMPAResult?
+    public var result: SaMPAResult?
     
     public init() {
         self.spa = nil
