@@ -26,31 +26,31 @@ public struct SPAOptions : OptionSet {
 
 public struct SPAParameters {
     /// observer local time, including milliseconds and timezone
-    var date: DateComponents
+    public var date: DateComponents
 
     /// DUT1 from https://datacenter.iers.org/data/latestVersion/6_BULLETIN_A_V2013_016.txt
-    var delta_ut1: Double = -0.2
+    public var delta_ut1: Double = -0.2
     /// same source as DUT1. delta_t = 32.184 + (TAI-UTC) - DUT1
-    var delta_t: Double = 32.184 + 37 + 0.2
+    public var delta_t: Double = 32.184 + 37 + 0.2
 
     /// Observer longitude/latitude/elevation
     /// longitude should be -180 to 180, lat -90-90,
-    var location: CLLocation
+    public var location: CLLocation
 
     /// average local pressure (millibars)
-    var pressure: Double = 1000
+    public var pressure: Double = 1000
 
     /// annual average local temperature in °C
-    var temperature: Double = 10
+    public var temperature: Double = 10
 
     /// surface slope measured from the horizontal plane
-    var slope: Double = 0
+    public var slope: Double = 0
 
     /// surface azimuth rotation (measured from south to projection of surface normal on horizonal plane, negative east)
-    var azimuthRotation: Double = 0
+    public var azimuthRotation: Double = 0
 
     /// atmospheric refraction at sunrise and sunset (0.5667 deg is typical)
-    var atmosphericRefraction: Double = 0.5667
+    public var atmosphericRefraction: Double = 0.5667
 }
 
 public struct SPAResult {
