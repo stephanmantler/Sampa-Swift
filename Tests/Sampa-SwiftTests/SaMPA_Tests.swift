@@ -8,7 +8,7 @@
 import Foundation
 
 import XCTest
-@testable import Sampa_Swift
+@testable import SaMPA
 
 final class SaMPA_Tests: XCTestCase {
     
