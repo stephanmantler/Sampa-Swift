@@ -7,16 +7,16 @@
 
 import Foundation
 
-struct MPAResult {
+public struct MPAResult {
     /// topocentric zenith angle [degrees]
-    var zenith: Double = .nan
+    public var zenith: Double = .nan
     /// topocentric azimuth angle (westward from south) [for astronomers]
-    var azimuth_astro: Double = .nan
+    public var azimuth_astro: Double = .nan
     /// topocentric azimuth angle (eastward from north) [for navigators and solar radiation]
-    var azimuth: Double = .nan
+    public var azimuth: Double = .nan
 }
 
-class MPA {
+public class MPA {
     let TERM_D = 0
     let TERM_M = 1
     let TERM_MPR = 2
@@ -170,7 +170,7 @@ class MPA {
         return lamda_prime + del_psi
     }
 
-    func calculate(using spa: SPA) -> MPAResult
+    public func calculate(using spa: SPA) -> MPAResult
     {
         l_prime = moon_mean_longitude(spa.julianEphemerisCentury)
         d       = moon_mean_elongation(spa.julianEphemerisCentury)

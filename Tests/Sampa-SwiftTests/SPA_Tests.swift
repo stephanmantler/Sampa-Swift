@@ -23,7 +23,7 @@ final class SPA_Tests: XCTestCase {
         var params = makeTestParams(for: date)
         
         var spa = SPA(params: params)
-        var result = spa.calculate()
+        var result = spa.calculate(.all)
         
         XCTAssertNotNil(result)
         

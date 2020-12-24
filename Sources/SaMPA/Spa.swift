@@ -9,17 +9,22 @@ import Foundation
 import CoreLocation
 import os
 
-struct SPAOptions : OptionSet {
-    let rawValue: Int
+public struct SPAOptions : OptionSet {
     
-    static let zenithAzimuth = SPAOptions(rawValue: 1)
-    static let incidence = SPAOptions(rawValue: 2)
-    static let riseTransitSet = SPAOptions(rawValue: 4)
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
     
-    static let all: SPAOptions = [.zenithAzimuth, incidence, riseTransitSet]
+    public let rawValue: Int
+    
+    public static let zenithAzimuth = SPAOptions(rawValue: 1)
+    public static let incidence = SPAOptions(rawValue: 2)
+    public static let riseTransitSet = SPAOptions(rawValue: 4)
+    
+    public static let all: SPAOptions = [.zenithAzimuth, incidence, riseTransitSet]
 }
 
-struct SPAParameters {
+public struct SPAParameters {
     /// observer local time, including milliseconds and timezone
     var date: DateComponents
 
@@ -48,7 +53,7 @@ struct SPAParameters {
     var atmosphericRefraction: Double = 0.5667
 }
 
-struct SPAResult {
+public struct SPAResult {
     /// topocentric zenith angle [degrees]
     var zenith: Double = .nan
     /// topocentric azimuth angle (westward from south) [for astronomers]
@@ -66,8 +71,8 @@ struct SPAResult {
     var sunset: Double = .nan
 }
 
-class SPA {
-    var params: SPAParameters
+public class SPA {
+    public var params: SPAParameters
     
     // MARK: Earth periodic terms
     let L_TERMS =
@@ -131,7 +136,7 @@ class SPA {
         [-171996,-174.2,92025,8.9], [-13187,-1.6,5736,-3.1], [-2274,-0.2,977,-0.5], [2062,0.2,-895,0.5], [1426,-3.4,54,-0.1], [712,0.1,-7,0], [-517,1.2,224,-0.6], [-386,-0.4,200,0], [-301,0,129,-0.1], [217,-0.5,-95,0.3], [-158,0,0,0], [129,0.1,-70,0], [123,0,-53,0], [63,0,0,0], [63,0.1,-33,0], [-59,0,26,0], [-58,-0.1,32,0], [-51,0,27,0], [48,0,0,0], [46,0,-24,0], [-38,0,16,0], [-31,0,13,0], [29,0,0,0], [29,0,-12,0], [26,0,0,0], [-22,0,0,0], [21,0,-10,0], [17,-0.1,0,0], [16,0,-8,0], [-16,0.1,7,0], [-15,0,9,0], [-13,0,7,0], [-12,0,6,0], [11,0,0,0], [-10,0,5,0], [-8,0,3,0], [7,0,-3,0], [-7,0,0,0], [-7,0,3,0], [-7,0,3,0], [6,0,0,0], [6,0,-3,0], [6,0,-3,0], [-6,0,3,0], [-6,0,3,0], [5,0,0,0], [-5,0,3,0], [-5,0,3,0], [-5,0,3,0], [4,0,0,0], [4,0,0,0], [4,0,0,0], [-4,0,0,0], [-4,0,0,0], [-4,0,0,0], [3,0,0,0], [-3,0,0,0], [-3,0,0,0], [-3,0,0,0], [-3,0,0,0], [-3,0,0,0], [-3,0,0,0], [-3,0,0,0]
     ]
     
-    init(params: SPAParameters) {
+    public init(params: SPAParameters) {
         self.params = params
     }
     
@@ -281,7 +286,7 @@ class SPA {
         geocentricSunDeclination = Utils.geocentric_declination(geocentricLatitude, eclipticTrueObliquity, apparentSunLongitude)
     }
     
-    func calculate(_ options: SPAOptions = .zenithAzimuth) -> SPAResult? {
+    public func calculate(_ options: SPAOptions = .all) -> SPAResult? {
         
         if(!validateInputs(options)) {
             return nil
