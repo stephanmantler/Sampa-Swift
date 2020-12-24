@@ -41,6 +41,19 @@ public class SaMPA {
     
     var spa: SPA?
     var mpa: MPA?
+    var result: SaMPAResult?
+    
+    public init() {
+        self.spa = nil
+        self.mpa = nil
+        self.result = nil
+    }
+    
+    public init(with params: SPAParameters) {
+        self.spa = nil
+        self.mpa = nil
+        self.result = self.calculate(with: params)
+    }
     
     func angular_distance_sun_moon(_ zen_sun: Double, _ azm_sun: Double, _ zen_moon: Double, _ azm_moon: Double) -> Double
     {
@@ -62,6 +75,7 @@ public class SaMPA {
 
     public func calculate(with spaParams: SPAParameters) -> SaMPAResult?
     {
+        self.result = nil
         spa = SPA(params: spaParams)
         guard let spaResult = spa!.calculate(.all) else {
             return nil
@@ -79,7 +93,7 @@ public class SaMPA {
         //sul_area(sampa->ems, sampa->rs, sampa->rm, &sampa->a_sul, &sampa->a_sul_pct);
 
         //if (sampa->function == SAMPA_ALL) estimate_irr(sampa);
-
+        self.result = result
         return result
     }
 }
