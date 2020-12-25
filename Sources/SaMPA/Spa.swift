@@ -29,13 +29,6 @@ public struct SPAParameters {
     public var date: Date
     public var timeZone: TimeZone
 
-    /*
-    /// DUT1 from https://datacenter.iers.org/data/latestVersion/6_BULLETIN_A_V2013_016.txt
-    public var delta_ut1: Double = -0.2
-    /// same source as DUT1. delta_t = 32.184 + (TAI-UTC) - DUT1
-    public var delta_t: Double = 32.184 + 37 + 0.2
-     */
-    
     /// Observer longitude/latitude/elevation
     /// longitude should be -180 to 180, lat -90-90,
     public var location: CLLocation
@@ -54,6 +47,12 @@ public struct SPAParameters {
 
     /// atmospheric refraction at sunrise and sunset (0.5667 deg is typical)
     public var atmosphericRefraction: Double = 0.5667
+    
+    public init(date: Date, location: CLLocation, timeZone: TimeZone) {
+        self.date = date
+        self.location = location
+        self.timeZone = timeZone
+    }
 }
 
 public struct SPAResult {
