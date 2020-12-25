@@ -156,30 +156,28 @@ extension SPA {
         
         let h0_prime = -1*(Utils.SUN_RADIUS + params.atmosphericRefraction)
 
-        m        = sun_mean_longitude(julianEphemerisMillennium)
+        m        = sun_mean_longitude(params.date.julianEphemerisMillennium)
         equationOfTime = eot(m, self.geocentricSunRightAscension, nutationLongitude, eclipticTrueObliquity)
 
-        sun_rts.params.date.hour = 0
-        sun_rts.params.date.minute = 0
-        sun_rts.params.date.second = 0
-        sun_rts.params.delta_ut1 = 0
-        sun_rts.params.date.timeZone = TimeZone(secondsFromGMT: 0)!
+        var remainder = sun_rts.params.date.timeIntervalSince1970.remainder(dividingBy: 86400)
+        if ( remainder < 0 ) { remainder = remainder + 86400 }
+        sun_rts.params.date = sun_rts.params.date.addingTimeInterval( -remainder )
 
-        sun_rts.julianDate = sun_rts.calculateJulianDay()
         sun_rts.calculate_geocentric_sun_right_ascension_and_declination()
 
         nu = sun_rts.greenwichSiderealTime
-
-        sun_rts.params.delta_t = 0
-        sun_rts.julianDate = sun_rts.julianDate - 1
+        let baseDelta_t = JulianDateParameters.delta_t
+        JulianDateParameters.delta_t = 0
+        sun_rts.params.date -= 86400
         
         for i in 0..<JD_COUNT {
             sun_rts.calculate_geocentric_sun_right_ascension_and_declination()
             alpha[i] = sun_rts.geocentricSunRightAscension
             delta[i] = sun_rts.geocentricSunDeclination
-            sun_rts.julianDate = sun_rts.julianDate + 1
+            sun_rts.params.date += 86400
         }
-
+        JulianDateParameters.delta_t = baseDelta_t
+        
         m_rts[SUN_TRANSIT] = approx_sun_transit_time(
             alpha[JD_ZERO], params.location.coordinate.longitude, nu)
         h0 = sun_hour_angle_at_rise_set(
@@ -193,7 +191,7 @@ extension SPA {
 
                 nu_rts[i]      = nu + 360.985647*m_rts[i]
 
-                n              = m_rts[i] + params.delta_t/86400.0
+                n              = m_rts[i] + baseDelta_t/86400.0
                 alpha_prime[i] = rts_alpha_delta_prime(alpha, n)
                 delta_prime[i] = rts_alpha_delta_prime(delta, n)
 
@@ -210,21 +208,21 @@ extension SPA {
 
             let suntransit = dayfrac_to_local_hr(
                 m_rts[SUN_TRANSIT] - h_prime[SUN_TRANSIT] / 360.0,
-                Double(params.date.timeZone?.secondsFromGMT() ?? 0)/3600.0)
+                Double(params.timeZone.secondsFromGMT())/3600.0)
 
             let sunrise = dayfrac_to_local_hr(
                 sun_rise_and_set(
                     m_rts, h_rts, delta_prime,
                     params.location.coordinate.latitude,
                     h_prime, h0_prime, SUN_RISE),
-                Double(params.date.timeZone?.secondsFromGMT() ?? 0)/3600.0)
+                Double(params.timeZone.secondsFromGMT())/3600.0)
 
             let sunset  = dayfrac_to_local_hr(
                 sun_rise_and_set(
                     m_rts, h_rts, delta_prime,
                     params.location.coordinate.latitude,
                     h_prime, h0_prime, SUN_SET),
-                Double(params.date.timeZone?.secondsFromGMT() ?? 0)/3600.0)
+                Double(params.timeZone.secondsFromGMT())/3600.0)
 
             return (sunrise, suntransit, sunset)
         }

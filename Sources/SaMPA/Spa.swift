@@ -26,13 +26,16 @@ public struct SPAOptions : OptionSet {
 
 public struct SPAParameters {
     /// observer local time, including milliseconds and timezone
-    public var date: DateComponents
+    public var date: Date
+    public var timeZone: TimeZone
 
+    /*
     /// DUT1 from https://datacenter.iers.org/data/latestVersion/6_BULLETIN_A_V2013_016.txt
     public var delta_ut1: Double = -0.2
     /// same source as DUT1. delta_t = 32.184 + (TAI-UTC) - DUT1
     public var delta_t: Double = 32.184 + 37 + 0.2
-
+     */
+    
     /// Observer longitude/latitude/elevation
     /// longitude should be -180 to 180, lat -90-90,
     public var location: CLLocation
@@ -145,9 +148,6 @@ public class SPA {
         
         if ((params.pressure    < 0    ) || (params.pressure    > 5000)) { return false }
         if ((params.temperature <= -273) || (params.temperature > 6000)) { return false }
-        if ((params.delta_ut1   <= -1  ) || (params.delta_ut1   >= 1  )) { return false }
-
-        if (fabs(params.delta_t)       > 8000    ) { return false }
         if (fabs(params.atmosphericRefraction) > 5       ) { return false }
 
         if (options.contains(.incidence))
@@ -158,6 +158,7 @@ public class SPA {
 
         return true
     }
+/*
     /// Julian date
     var julianDate : Double = .signalingNaN
     /// Julian century
@@ -169,12 +170,12 @@ public class SPA {
     var julianEphemerisCentury : Double = .signalingNaN
     /// Julian ephemeris millennium
     var julianEphemerisMillennium : Double = .signalingNaN
-
-    /// earth heliocentric longitude [degrees]
+*/
+    /// earth heliocentric longitude , _l_ [degrees]
     var earthHeliocentricLongitude : Double = .signalingNaN
-    /// earth heliocentric latitude [degrees]
+    /// earth heliocentric latitude, _b_ [degrees]
     var earthHeliocentricLatitude : Double = .signalingNaN
-    /// earth radius vector [Astronomical Units, AU]
+    /// earth radius vector, _r_ [Astronomical Units, AU]
     var earthRadiusVector : Double = .signalingNaN
 
     /// geocentric longitude [degrees]
@@ -255,31 +256,32 @@ public class SPA {
     {
         var x: [Double] = Array(repeating: Double.nan, count: 5)
 
-        julianCentury = julianCentury(julianDate)
+        /*
+        julianCentury = params.date.julianCentur
         julianEphemerisDay = julianEphemerisDay(julianDate, params.delta_t)
         julianEphemerisCentury = julianEphemerisCentury(julianEphemerisDay)
         julianEphemerisMillennium = julianEphemerisMillennium(julianEphemerisCentury)
-
-        earthHeliocentricLongitude = earth_heliocentric_longitude(julianEphemerisMillennium)
-        earthHeliocentricLatitude = earth_heliocentric_latitude(julianEphemerisMillennium)
-        earthRadiusVector = earth_radius_vector(julianEphemerisMillennium)
+*/
+        earthHeliocentricLongitude = earth_heliocentric_longitude(params.date.julianEphemerisMillennium)
+        earthHeliocentricLatitude = earth_heliocentric_latitude(params.date.julianEphemerisMillennium)
+        earthRadiusVector = earth_radius_vector(params.date.julianEphemerisMillennium)
 
         geocentricLongitude = geocentric_longitude(earthHeliocentricLongitude)
         geocentricLatitude  = geocentric_latitude(earthHeliocentricLatitude)
 
-        x[0] = mean_elongation_moon_sun(julianEphemerisCentury)
-        x[1] = mean_anomaly_sun(julianEphemerisCentury)
-        x[2] = mean_anomaly_moon(julianEphemerisCentury)
-        x[3] = argument_latitude_moon(julianEphemerisCentury)
-        x[4] = ascending_longitude_moon(julianEphemerisCentury)
-        calculateNutationLongitudeAndObliquity(julianEphemerisCentury, x)
+        x[0] = mean_elongation_moon_sun(params.date.julianEphemerisCentury)
+        x[1] = mean_anomaly_sun(params.date.julianEphemerisCentury)
+        x[2] = mean_anomaly_moon(params.date.julianEphemerisCentury)
+        x[3] = argument_latitude_moon(params.date.julianEphemerisCentury)
+        x[4] = ascending_longitude_moon(params.date.julianEphemerisCentury)
+        calculateNutationLongitudeAndObliquity(params.date.julianEphemerisCentury, x)
 
-        eclipticMeanObliquity = ecliptic_mean_obliquity(julianEphemerisMillennium)
+        eclipticMeanObliquity = ecliptic_mean_obliquity(params.date.julianEphemerisMillennium)
         eclipticTrueObliquity  = ecliptic_true_obliquity(nutationObliquity, eclipticMeanObliquity)
 
         aberrationCorrection   = aberration_correction(earthRadiusVector)
         apparentSunLongitude     = apparent_sun_longitude(geocentricLongitude, nutationLongitude, aberrationCorrection)
-        greenwichMeanSiderealTime       = greenwich_mean_sidereal_time (julianDate, julianCentury)
+        greenwichMeanSiderealTime       = greenwich_mean_sidereal_time (params.date.julianDate, params.date.julianCentury)
         greenwichSiderealTime        = greenwich_sidereal_time (greenwichMeanSiderealTime, nutationLongitude, eclipticTrueObliquity)
 
         geocentricSunRightAscension = Utils.geocentric_right_ascension(apparentSunLongitude, eclipticTrueObliquity, geocentricLatitude)
@@ -293,7 +295,7 @@ public class SPA {
         }
         //var result = SPAResult()
 
-        julianDate = calculateJulianDay()
+        //julianDate = calculateJulianDay()
         calculate_geocentric_sun_right_ascension_and_declination()
         
         observerHourAngle  = Utils.observer_hour_angle(greenwichSiderealTime, params.location.coordinate.longitude, geocentricSunRightAscension)

@@ -172,20 +172,20 @@ public class MPA {
 
     public func calculate(using spa: SPA) -> MPAResult
     {
-        l_prime = moon_mean_longitude(spa.julianEphemerisCentury)
-        d       = moon_mean_elongation(spa.julianEphemerisCentury)
-        m       = sun_mean_anomaly(spa.julianEphemerisCentury)
-        m_prime = moon_mean_anomaly(spa.julianEphemerisCentury)
-        f       = moon_latitude_argument(spa.julianEphemerisCentury)
+        l_prime = moon_mean_longitude(spa.params.date.julianEphemerisCentury)
+        d       = moon_mean_elongation(spa.params.date.julianEphemerisCentury)
+        m       = sun_mean_anomaly(spa.params.date.julianEphemerisCentury)
+        m_prime = moon_mean_anomaly(spa.params.date.julianEphemerisCentury)
+        f       = moon_latitude_argument(spa.params.date.julianEphemerisCentury)
         
-        let lr = moon_periodic_term_summation(d, m, m_prime, f, spa.julianEphemerisCentury, ML_TERMS)
+        let lr = moon_periodic_term_summation(d, m, m_prime, f, spa.params.date.julianEphemerisCentury, ML_TERMS)
         l = lr.0
         r = lr.1
         
-        let b0 = moon_periodic_term_summation(d, m, m_prime, f, spa.julianEphemerisCentury, MB_TERMS)
+        let b0 = moon_periodic_term_summation(d, m, m_prime, f, spa.params.date.julianEphemerisCentury, MB_TERMS)
         b = b0.0
 
-        let lb =  moon_longitude_and_latitude(spa.julianEphemerisCentury, l_prime, f, m_prime, l, b)
+        let lb =  moon_longitude_and_latitude(spa.params.date.julianEphemerisCentury, l_prime, f, m_prime, l, b)
         lamda_prime = lb.0
         beta = lb.1
 

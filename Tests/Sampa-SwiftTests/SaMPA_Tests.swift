@@ -12,9 +12,12 @@ import XCTest
 
 final class SaMPA_Tests: XCTestCase {
     
-    func makeTestParams(for date: DateComponents) -> SPAParameters {
+    func makeTestParams(for dateComponents: DateComponents) -> SPAParameters {
+        let cal = Calendar(identifier: .iso8601)
+        let date = cal.date(from: dateComponents)!
         return SPAParameters(
             date: date,
+            timeZone: dateComponents.timeZone!,
             location: CLLocation(
                 coordinate: CLLocationCoordinate2D(latitude: 64.1466,longitude: -21.9426) /* Reykjavík, Iceland */,
                 altitude: 0,
@@ -49,19 +52,21 @@ final class SaMPA_Tests: XCTestCase {
              20 Incidence   21 Sun Transit   22 Sunrise 23 Sunset */
             /* create sample data from CSV row */
             
-            var date = DateComponents(timeZone: .none, year: Int(row[0]), month: Int(row[1]), day: Int(row[2]), hour: Int(row[3]), minute: Int(row[4]), second: Int(row[5]), nanosecond: 0)
-            date.timeZone = TimeZone(secondsFromGMT: Int(row[8] * 3600))
-
+            var dateComponents = DateComponents(timeZone: .none, year: Int(row[0]), month: Int(row[1]), day: Int(row[2]), hour: Int(row[3]), minute: Int(row[4]), second: Int(row[5]), nanosecond: 0)
+            dateComponents.timeZone = TimeZone(secondsFromGMT: Int(row[8] * 3600))
+            let cal = Calendar(identifier: .iso8601)
+            let date = cal.date(from: dateComponents)!
             var params = SPAParameters(
                 date: date,
+                timeZone: dateComponents.timeZone!,
                 location: CLLocation(
                     coordinate: CLLocationCoordinate2D(latitude: row[10], longitude: row[9]),
                     altitude: row[11],
                     horizontalAccuracy: 0,
                     verticalAccuracy: 0,
                     timestamp: Date()))
-            params.delta_t = row[7]
-            params.delta_ut1 = row[6]
+            JulianDateParameters.delta_t = row[7]
+            JulianDateParameters.delta_ut1 = row[6]
             params.pressure = row[12]
             params.temperature = row[13]
             params.atmosphericRefraction = row[16]
@@ -90,18 +95,22 @@ final class SaMPA_Tests: XCTestCase {
     
     func testSunMoon() {
         
-        var date = DateComponents(timeZone: .none, year: 2003, month: 10, day: 17, hour: 12, minute: 30, second: 30, nanosecond: 0)
-        date.timeZone = TimeZone(secondsFromGMT: -7 * 3600)
+        var dateComponents = DateComponents(timeZone: .none, year: 2003, month: 10, day: 17, hour: 12, minute: 30, second: 30, nanosecond: 0)
+        dateComponents.timeZone = TimeZone(secondsFromGMT: -7 * 3600)
+        let cal = Calendar(identifier: .iso8601)
+        let date = cal.date(from: dateComponents)!
+
         var params = SPAParameters(
             date: date,
+            timeZone: dateComponents.timeZone!,
             location: CLLocation(
                 coordinate: CLLocationCoordinate2D(latitude: 39.742476, longitude: -105.1786),
                 altitude: 1830.14,
                 horizontalAccuracy: 0,
                 verticalAccuracy: 0,
                 timestamp: Date()))
-        params.delta_t = 67
-        params.delta_ut1 = 0
+        JulianDateParameters.delta_t = 67
+        JulianDateParameters.delta_ut1 = 0
         params.pressure = 820
         params.temperature = 11
         params.atmosphericRefraction = 0.5667
