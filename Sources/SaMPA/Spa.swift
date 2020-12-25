@@ -57,20 +57,20 @@ public struct SPAParameters {
 
 public struct SPAResult {
     /// topocentric zenith angle [degrees]
-    var zenith: Double = .nan
+    public var zenith: Double = .nan
     /// topocentric azimuth angle (westward from south) [for astronomers]
-    var azimuth_astro: Double = .nan
+    public var azimuth_astro: Double = .nan
     /// topocentric azimuth angle (eastward from north) [for navigators and solar radiation]
-    var azimuth: Double = .nan
+    public var azimuth: Double = .nan
     /// surface incidence angle [degrees]
-    var incidence: Double = .nan
+    public var incidence: Double = .nan
 
     /// local sun transit time (or solar noon) [fractional hour]
-    var suntransit: Double = .nan
+    public var suntransit: Double = .nan
     //local sunrise time (+/- 30 seconds) [fractional hour]
-    var sunrise: Double = .nan
+    public var sunrise: Double = .nan
     //local sunset time (+/- 30 seconds) [fractional hour]
-    var sunset: Double = .nan
+    public var sunset: Double = .nan
 }
 
 public class SPA {
