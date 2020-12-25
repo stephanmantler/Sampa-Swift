@@ -6,13 +6,13 @@ final class SPA_Tests: XCTestCase {
     func makeTestParams(for date: Date) -> SPAParameters {
         return SPAParameters(
             date: date,
-            timeZone: TimeZone(secondsFromGMT: 0)!,
             location: CLLocation(
                 coordinate: CLLocationCoordinate2D(latitude: 64.1466,longitude: -21.9426) /* Reykjavík, Iceland */,
                 altitude: 0,
                 horizontalAccuracy: 0,
                 verticalAccuracy: 0,
-                timestamp: Date()))
+                timestamp: Date()),
+        timeZone: TimeZone(secondsFromGMT: 0)!)
     }
     
     /// Test julian date calculation.
@@ -61,13 +61,13 @@ final class SPA_Tests: XCTestCase {
         let date = calendar.date(from: dateComponents)!
         var params = SPAParameters(
             date: date,
-            timeZone: dateComponents.timeZone!,
             location: CLLocation(
                 coordinate: CLLocationCoordinate2D(latitude: 39.742476, longitude: -105.1786),
                 altitude: 1830.14,
                 horizontalAccuracy: 0,
                 verticalAccuracy: 0,
-                timestamp: Date()))
+                timestamp: Date()),
+            timeZone: dateComponents.timeZone!)
         JulianDateParameters.delta_t = 67
         JulianDateParameters.delta_ut1 = 0
         params.pressure = 820
@@ -114,9 +114,14 @@ final class SPA_Tests: XCTestCase {
         XCTAssertEqual(result!.zenith, 50.11162202, accuracy: 1e-6, "topocentric zenith")
         XCTAssertEqual(result!.azimuth, 194.34024051, accuracy: 1e-6, "topocentric azimuth")
 
-        XCTAssertEqual(result!.sunrise, 6.212067, accuracy: 1e-6)
-        XCTAssertEqual(result!.suntransit, 11.768045, accuracy: 1e-6)
-        XCTAssertEqual(result!.sunset, 17.338667, accuracy: 1e-6)
+        
+        var remainder = params.date.timeIntervalSince1970.remainder(dividingBy: 86400)
+        if ( remainder < 0 ) { remainder = remainder + 86400 }
+        let baseDate = params.date.addingTimeInterval( -remainder )
+
+        XCTAssertEqual(result!.sunrise.timeIntervalSince(baseDate)/3600, 6.212067, accuracy: 1e-6)
+        XCTAssertEqual(result!.suntransit.timeIntervalSince(baseDate)/3600, 11.768045, accuracy: 1e-6)
+        XCTAssertEqual(result!.sunset.timeIntervalSince(baseDate)/3600, 17.338667, accuracy: 1e-6)
     }
     
     /**
@@ -132,13 +137,14 @@ final class SPA_Tests: XCTestCase {
         let date = calendar.date(from: dateComponents)!
         var params = SPAParameters(
             date: date,
-            timeZone: dateComponents.timeZone!,
             location: CLLocation(
                 coordinate: CLLocationCoordinate2D(latitude: 24.61167, longitude: 143.36167),
                 altitude: 0,
                 horizontalAccuracy: 0,
                 verticalAccuracy: 0,
-                timestamp: Date()))
+                timestamp: Date()),
+            timeZone: dateComponents.timeZone!
+)
         JulianDateParameters.delta_t = 66.4
         JulianDateParameters.delta_ut1 = 0
         params.pressure = 1000

@@ -66,11 +66,11 @@ public struct SPAResult {
     public var incidence: Double = .nan
 
     /// local sun transit time (or solar noon) [fractional hour]
-    public var suntransit: Double = .nan
+    public var suntransit: Date = .distantPast
     //local sunrise time (+/- 30 seconds) [fractional hour]
-    public var sunrise: Double = .nan
+    public var sunrise: Date = .distantPast
     //local sunset time (+/- 30 seconds) [fractional hour]
-    public var sunset: Double = .nan
+    public var sunset: Date = .distantPast
 }
 
 public class SPA {
@@ -287,6 +287,18 @@ public class SPA {
         geocentricSunDeclination = Utils.geocentric_declination(geocentricLatitude, eclipticTrueObliquity, apparentSunLongitude)
     }
     
+    func combineFractionalDate(_ hours: Double) -> Date {
+        // make midnight first
+        var remainder = params.date.timeIntervalSince1970.remainder(dividingBy: 86400)
+        if ( remainder < 0 ) { remainder = remainder + 86400 }
+        let baseDate = params.date.addingTimeInterval( -remainder )
+            //.addingTimeInterval(-TimeInterval(params.timeZone.secondsFromGMT()))
+        
+        let offset = hours * 3600
+        let result = baseDate.addingTimeInterval(offset)
+        return result
+    }
+    
     public func calculate(_ options: SPAOptions = .all) -> SPAResult? {
         
         if(!validateInputs(options)) {
@@ -336,9 +348,9 @@ public class SPA {
         
         if options.contains(.riseTransitSet) {
             let rts = calculate_eot_and_sun_rise_transit_set()
-            result.sunrise = rts.0
-            result.suntransit = rts.1
-            result.sunset = rts.2
+            result.sunrise = combineFractionalDate(rts.0)
+            result.suntransit = combineFractionalDate(rts.1)
+            result.sunset = combineFractionalDate(rts.2)
         }
         
         return result

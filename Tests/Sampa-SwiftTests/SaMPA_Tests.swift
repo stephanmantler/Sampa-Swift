@@ -17,13 +17,13 @@ final class SaMPA_Tests: XCTestCase {
         let date = cal.date(from: dateComponents)!
         return SPAParameters(
             date: date,
-            timeZone: dateComponents.timeZone!,
             location: CLLocation(
                 coordinate: CLLocationCoordinate2D(latitude: 64.1466,longitude: -21.9426) /* Reykjavík, Iceland */,
                 altitude: 0,
                 horizontalAccuracy: 0,
                 verticalAccuracy: 0,
-                timestamp: Date()))
+                timestamp: Date()),
+            timeZone: dateComponents.timeZone!)
     }
     
     // currently disabled pending test data availability
@@ -58,13 +58,13 @@ final class SaMPA_Tests: XCTestCase {
             let date = cal.date(from: dateComponents)!
             var params = SPAParameters(
                 date: date,
-                timeZone: dateComponents.timeZone!,
                 location: CLLocation(
                     coordinate: CLLocationCoordinate2D(latitude: row[10], longitude: row[9]),
                     altitude: row[11],
                     horizontalAccuracy: 0,
                     verticalAccuracy: 0,
-                    timestamp: Date()))
+                    timestamp: Date()),
+                timeZone: dateComponents.timeZone!)
             JulianDateParameters.delta_t = row[7]
             JulianDateParameters.delta_ut1 = row[6]
             params.pressure = row[12]
@@ -87,9 +87,9 @@ final class SaMPA_Tests: XCTestCase {
             XCTAssertEqual(result!.sun.azimuth_astro, row[18], accuracy: 1/3600.0)
             XCTAssertEqual(result!.sun.azimuth, row[19], accuracy: 1/3600.0)
              */
-            XCTAssertEqual(result!.sun.sunrise, row[22], accuracy: 1/3600.0)
-            XCTAssertEqual(result!.sun.suntransit, row[21], accuracy: 1/3600.0)
-            XCTAssertEqual(result!.sun.sunset, row[23], accuracy: 1/3600.0)
+            XCTAssertEqual(result!.sun.sunrise.timeIntervalSince(params.date)/3600, row[22], accuracy: 1/3600.0)
+            XCTAssertEqual(result!.sun.suntransit.timeIntervalSince(params.date)/3600, row[21], accuracy: 1/3600.0)
+            XCTAssertEqual(result!.sun.sunset.timeIntervalSince(params.date)/3600, row[23], accuracy: 1/3600.0)
         }
     }
     
@@ -102,13 +102,13 @@ final class SaMPA_Tests: XCTestCase {
 
         var params = SPAParameters(
             date: date,
-            timeZone: dateComponents.timeZone!,
             location: CLLocation(
                 coordinate: CLLocationCoordinate2D(latitude: 39.742476, longitude: -105.1786),
                 altitude: 1830.14,
                 horizontalAccuracy: 0,
                 verticalAccuracy: 0,
-                timestamp: Date()))
+                timestamp: Date()),
+            timeZone: dateComponents.timeZone!)
         JulianDateParameters.delta_t = 67
         JulianDateParameters.delta_ut1 = 0
         params.pressure = 820
