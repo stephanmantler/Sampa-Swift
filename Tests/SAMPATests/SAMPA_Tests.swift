@@ -8,9 +8,9 @@
 import Foundation
 
 import XCTest
-@testable import SaMPA
+@testable import SAMPA
 
-final class SaMPA_Tests: XCTestCase {
+final class SAMPA_Tests: XCTestCase {
     
     func makeTestParams(for dateComponents: DateComponents) -> SPAParameters {
         let cal = Calendar(identifier: .iso8601)
@@ -73,7 +73,7 @@ final class SaMPA_Tests: XCTestCase {
             params.slope = row[14]
             params.azimuthRotation = row[15]
             
-            let sampa = SaMPA()
+            let sampa = SAMPA()
             let result = sampa.calculate(with: params)
             // requires valid result
             XCTAssertNotNil(result)
@@ -117,7 +117,7 @@ final class SaMPA_Tests: XCTestCase {
         params.slope = 30
         params.azimuthRotation = -10
         
-        let sampa = SaMPA()
+        let sampa = SAMPA()
         let result = sampa.calculate(with: params)
         // requires valid result
         XCTAssertNotNil(result)

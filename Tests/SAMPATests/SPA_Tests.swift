@@ -1,5 +1,5 @@
 import XCTest
-@testable import SaMPA
+@testable import SAMPA
 
 final class SPA_Tests: XCTestCase {
     

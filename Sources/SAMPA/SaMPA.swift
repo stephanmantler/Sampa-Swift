@@ -1,5 +1,5 @@
 //
-//  SaMPA.swift
+//  SAMPA.swift
 //  
 //
 //  Created by stephan mantler on 21.12.2020.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SaMPAResult {
+public struct SAMPAResult {
     public var sun: SPAResult
     public var moon: MPAResult
     
@@ -37,11 +37,11 @@ public struct SaMPAResult {
     public var dhi_sul: Double = .nan
 }
 
-public class SaMPA {
+public class SAMPA {
     
     var spa: SPA?
     var mpa: MPA?
-    public var result: SaMPAResult?
+    public var result: SAMPAResult?
     
     public init() {
         self.spa = nil
@@ -73,7 +73,7 @@ public class SaMPA {
         return 358473400*(1 + sin(Utils.deg2rad(e))*sin(Utils.deg2rad(pi)))/(3600.0 * cap_delta)
     }
 
-    public func calculate(with spaParams: SPAParameters) -> SaMPAResult?
+    public func calculate(with spaParams: SPAParameters) -> SAMPAResult?
     {
         self.result = nil
         spa = SPA(params: spaParams)
@@ -83,7 +83,7 @@ public class SaMPA {
         mpa = MPA()
         let mpaResult = mpa!.calculate(using: spa!)
         
-        var result = SaMPAResult(sun: spaResult, moon: mpaResult)
+        var result = SAMPAResult(sun: spaResult, moon: mpaResult)
         
         result.ems = angular_distance_sun_moon(result.sun.zenith, result.sun.azimuth,
                                                result.moon.zenith, result.moon.azimuth)
