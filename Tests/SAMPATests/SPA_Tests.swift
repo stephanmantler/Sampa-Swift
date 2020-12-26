@@ -1,4 +1,5 @@
 import XCTest
+import CoreLocation
 @testable import SAMPA
 
 final class SPA_Tests: XCTestCase {

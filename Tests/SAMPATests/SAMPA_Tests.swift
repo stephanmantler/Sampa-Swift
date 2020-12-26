@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 import XCTest
 @testable import SAMPA
@@ -38,7 +39,12 @@ final class SAMPA_Tests: XCTestCase {
         }
         var data: [[Double]] = []
         // let's see how long it takes.
-        measure(metrics: [XCTClockMetric()]) { data = CSVTestUtility.csv(data: dataString) }
+        if #available(iOS 13.0, *) {
+            measure(metrics: [XCTClockMetric()]) { data = CSVTestUtility.csv(data: dataString) }
+        } else {
+            // Fallback on earlier versions - just run without the metrics.
+            data = CSVTestUtility.csv(data: dataString)
+        }
             
         XCTAssertTrue(data[0].count == 24)
             
