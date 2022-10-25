@@ -157,19 +157,7 @@ public class SPA {
 
         return true
     }
-/*
-    /// Julian date
-    var julianDate : Double = .signalingNaN
-    /// Julian century
-    var julianCentury : Double = .signalingNaN
 
-    /// Julian ephemeris day
-    var julianEphemerisDay : Double = .signalingNaN
-    /// Julian ephemeris century
-    var julianEphemerisCentury : Double = .signalingNaN
-    /// Julian ephemeris millennium
-    var julianEphemerisMillennium : Double = .signalingNaN
-*/
     /// earth heliocentric longitude , _l_ [degrees]
     var earthHeliocentricLongitude : Double = .signalingNaN
     /// earth heliocentric latitude, _b_ [degrees]
@@ -182,13 +170,6 @@ public class SPA {
     /// geocentric latitude [degrees]
     var geocentricLatitude : Double = .signalingNaN
 
-    /*
-    var x0 : Double = .signalingNaN         //mean elongation (moon-sun) [degrees]
-    var x1 : Double = .signalingNaN         //mean anomaly (sun) [degrees]
-    var x2 : Double = .signalingNaN         //mean anomaly (moon) [degrees]
-    var x3 : Double = .signalingNaN         //argument latitude (moon) [degrees]
-    var x4 : Double = .signalingNaN         //ascending longitude (moon) [degrees]
-*/
     /// nutation longitude [degrees]
     var nutationLongitude : Double = .signalingNaN
     /// nutation obliquity [degrees]
@@ -255,12 +236,6 @@ public class SPA {
     {
         var x: [Double] = Array(repeating: Double.nan, count: 5)
 
-        /*
-        julianCentury = params.date.julianCentur
-        julianEphemerisDay = julianEphemerisDay(julianDate, params.delta_t)
-        julianEphemerisCentury = julianEphemerisCentury(julianEphemerisDay)
-        julianEphemerisMillennium = julianEphemerisMillennium(julianEphemerisCentury)
-*/
         earthHeliocentricLongitude = earth_heliocentric_longitude(params.date.julianEphemerisMillennium)
         earthHeliocentricLatitude = earth_heliocentric_latitude(params.date.julianEphemerisMillennium)
         earthRadiusVector = earth_radius_vector(params.date.julianEphemerisMillennium)
@@ -304,9 +279,7 @@ public class SPA {
         if(!validateInputs(options)) {
             return nil
         }
-        //var result = SPAResult()
 
-        //julianDate = calculateJulianDay()
         calculate_geocentric_sun_right_ascension_and_declination()
         
         observerHourAngle  = Utils.observer_hour_angle(greenwichSiderealTime, params.location.coordinate.longitude, geocentricSunRightAscension)

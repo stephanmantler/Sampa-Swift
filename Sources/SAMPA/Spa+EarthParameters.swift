@@ -32,7 +32,6 @@ extension SPA {
         return sum
     }
 
-
     func earth_heliocentric_longitude(_ jme: Double) -> Double
     {
         var sum: [Double] = Array.init(repeating: 0, count: L_TERMS.count)
@@ -171,6 +170,4 @@ extension SPA {
         return Utils.rad2deg(acos(cos(zenith_rad)*cos(slope_rad)  +
                                     sin(slope_rad )*sin(zenith_rad) * cos(Utils.deg2rad(azimuth_astro - azm_rotation))))
     }
-
-
 }

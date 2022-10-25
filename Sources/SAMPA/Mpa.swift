@@ -140,7 +140,6 @@ public class MPA {
     }
 
     func moon_longitude_and_latitude(_ jce: Double, _ l_prime: Double, _ f: Double, _ m_prime: Double, _ l: Double, _ b: Double) -> (Double, Double)
-    //                                                                          double *lamda_prime, double *beta)
     {
         let a1 = 119.75 +    131.849*jce
         let a2 =  53.09 + 479264.290*jce

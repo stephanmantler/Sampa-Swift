@@ -143,6 +143,4 @@ class Utils {
     {
         return limit_degrees(azimuth_astro + 180.0)
     }
-
-
 }
